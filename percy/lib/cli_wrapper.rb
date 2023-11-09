@@ -31,7 +31,7 @@ class CLIWrapper
 
       version = response['x-percy-core-version']
       if version.split('.')[0] != '1'
-        Common.log("Unsupported Percy CLI version, #{version}")
+        log("Unsupported Percy CLI version, #{version}")
         return false
       end
       if version.split('.')[1].to_i < 27
@@ -41,16 +41,23 @@ class CLIWrapper
         return true
       end
     rescue StandardError => e
-      Common.log('Percy is not running, disabling screenshots')
-      Common.log(e, on_debug: true)
+      log('Percy is not running, disabling screenshots')
+      log(e, on_debug: true)
       return false
     end
   end
 
-  def post_screenshots(name, tag, tiles, external_debug_url: nil, ignored_elements_data: nil, considered_elements_data: nil)
-    body = request_body(name, tag, tiles, external_debug_url, ignored_elements_data, considered_elements_data)
-    body['client_info'] = Environment._get_client_info()
-    body['environment_info'] = Environment._get_env_info()
+  def post_screenshots(name, tag, tiles, external_debug_url=nil, ignored_elements_data=nil, considered_elements_data=nil)
+    body = {
+      'name' => name,
+      'tag' => tag,
+      'tiles' => tiles.map(&:to_h),
+      'ignored_elements_data' => ignored_elements_data,
+      'external_debug_url' => external_debug_url,
+      'considered_elements_data' => considered_elements_data
+    }
+    body['client_info'] = Environment.get_client_info()
+    body['environment_info'] = Environment.get_env_info()
 
     uri = URI("#{PERCY_CLI_API}/percy/comparison")
     http = Net::HTTP.new(uri.host, uri.port)
@@ -65,7 +72,7 @@ class CLIWrapper
     data
   end
 
-  def post_failed_event(error)
+  def self.post_failed_event(error)
     body = {
       "clientInfo" => Environment.get_client_info(true),
       "message" => error,
@@ -116,16 +123,5 @@ class CLIWrapper
 
     data
   end
-end
 
-  def self.request_body(name, tag, tiles, external_debug_url, ignored_elements_data, considered_elements_data)
-    {
-      'name' => name,
-      'tag' => tag,
-      'tiles' => tiles.map(&:to_h),
-      'ignored_elements_data': ignored_elements_data,
-      'external_debug_url' => external_debug_url,
-      'considered_elements_data': considered_elements_data
-    }
-  end
 end

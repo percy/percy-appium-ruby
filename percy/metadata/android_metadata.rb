@@ -5,11 +5,11 @@ class AndroidMetadata < Metadata
   def initialize(driver)
     super(driver)
     @_bars = nil
-    @_viewport_rect = capabilities['viewportRect']
+    @_viewport_rect = capabilities.as_json['viewportRect']
   end
 
   def device_screen_size
-    width, height = capabilities['deviceScreenSize'].split('x')
+    width, height = capabilities.as_json['deviceScreenSize'].split('x')
     { 'width' => width.to_i, 'height' => height.to_i }
   end
 
@@ -53,21 +53,21 @@ class AndroidMetadata < Metadata
   end
 
   def viewport
-    capabilities['viewportRect'] || {}
+    capabilities.as_json['viewportRect'] || {}
   end
 
   def scale_factor
     1
   end
 
-  def device_name
+  def _device_name
     if @device_name.nil?
-      desired_caps = capabilities['desired'] || {}
-      _device_name = desired_caps['deviceName']
-      _device = desired_caps['device']
-      _device_name ||= _device
-      _device_model = capabilities['deviceModel']
-      @device_name = _device_name || _device_model
+      desired_caps = capabilities.as_json['desired'] || {}
+      device_name = desired_caps['deviceName']
+      device = desired_caps['device']
+      device_name ||= device
+      device_model = capabilities.as_json['deviceModel']
+      @device_name = device_name || device_model
     end
     @device_name
   end

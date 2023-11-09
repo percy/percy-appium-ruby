@@ -6,18 +6,15 @@ require_relative '../environment'
 
 class AppAutomate < GenericProvider
   def self.supports(remote_url)
-    if remote_url.rindex(ENV['AA_DOMAIN'].nil? ? 'browserstack' : ENV['AA_DOMAIN']) > -1
-      true
-    end
-    false    
+    remote_url.rindex(ENV['AA_DOMAIN'].nil? ? 'browserstack' : ENV['AA_DOMAIN']) > -1
   end
 
   def screenshot(name, **kwargs)
     session_details = execute_percy_screenshot_begin(name)
 
     if session_details
-      self.metadata._device_name = kwargs[:device_name] || session_details['deviceName']
-      self.metadata._os_version = session_details['osVersion']
+      metadata.device_name = session_details['deviceName']
+      metadata.os_version = session_details['osVersion']
       set_debug_url(session_details)
     end
 
@@ -42,6 +39,7 @@ class AppAutomate < GenericProvider
     if ENV['PERCY_DISABLE_REMOTE_UPLOADS'] == 'true'
       if fullpage_ss
         puts("Full page screenshots are only supported when 'PERCY_DISABLE_REMOTE_UPLOADS' is not set")
+      end
       return super(**kwargs) unless fullpage_ss
     end
     screenshot_type = fullpage_ss ? 'fullpage' : 'singlepage'
@@ -53,7 +51,7 @@ class AppAutomate < GenericProvider
 
     data = execute_percy_screenshot(
       metadata.device_screen_size.fetch('height', 1),
-      screenshotType,
+      screenshot_type,
       screen_lengths,
       scrollable_xpath,
       scrollable_id,
@@ -120,11 +118,11 @@ class AppAutomate < GenericProvider
     end
   end
 
-    def execute_percy_screenshot(device_height, screenshotType, screen_lengths, scrollable_xpath=None, 
-                                scrollable_id=None, scale_factor = 1, top_scrollview_offset=0,
-                                bottom_scrollview_offset=0)
-      project_id = ENV['PERCY_ENABLE_DEV'] == 'true' ? 'percy-dev' : 'percy-prod'
-      request_body = {
+  def execute_percy_screenshot(device_height, screenshotType, screen_lengths, scrollable_xpath=None, 
+                              scrollable_id=None, scale_factor = 1, top_scrollview_offset=0,
+                              bottom_scrollview_offset=0)
+    project_id = ENV['PERCY_ENABLE_DEV'] == 'true' ? 'percy-dev' : 'percy-prod'
+    request_body = {
       action: 'percyScreenshot',
       arguments: {
         state: 'screenshot',
@@ -132,14 +130,15 @@ class AppAutomate < GenericProvider
         screenshotType: screenshotType,
         projectId: project_id,
         scaleFactor: scale_factor,
-        options: { numOfTiles: screen_lengths,
-                   deviceHeight: device_height,
-                   scrollableXpath: scrollable_xpath,
-                   scrollableId: scrollable_id,
-                   topScrollviewOffset: top_scrollview_offset,
-                   bottomScrollviewOffset: bottom_scrollview_offset,
-                   FORCE_FULL_PAGE => ENV['FORCE_FULL_PAGE'] == 'true'
-                  }
+        options: {
+          numOfTiles: screen_lengths,
+          deviceHeight: device_height,
+          scrollableXpath: scrollable_xpath,
+          scrollableId: scrollable_id,
+          topScrollviewOffset: top_scrollview_offset,
+          bottomScrollviewOffset: bottom_scrollview_offset,
+          "FORCE_FULL_PAGE" => ENV['FORCE_FULL_PAGE'] == 'true'
+        }
       }
     }
     command = "browserstack_executor: #{request_body.to_json}"
@@ -151,5 +150,8 @@ class AppAutomate < GenericProvider
       log(e, on_debug: true)
       raise e
     end
+
   end
+
 end
+

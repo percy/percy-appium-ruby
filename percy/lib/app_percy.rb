@@ -6,7 +6,7 @@ require_relative '../metadata/metadata_resolver'
 
 class AppPercy
   def initialize(driver)
-    raise DriverNotSupported unless driver.is_a?(Appium::Driver)
+    raise DriverNotSupported unless driver.is_a?(Appium::Core::Base::Driver)
 
     @driver = driver
     @metadata = MetadataResolver.resolve(@driver)
@@ -36,5 +36,9 @@ class AppPercy
 
     @provider.screenshot(name, **kwargs)
     nil
+  end
+
+  def percy_options
+    @percy_options
   end
 end

@@ -61,7 +61,7 @@ class IOSMetadata < Metadata
 
   def device_name
     if @device_name.nil?
-      @device_name = capabilities['deviceName']
+      @device_name = capabilities.as_json['deviceName']
     end
     @device_name
   end

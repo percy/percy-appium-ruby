@@ -1,6 +1,6 @@
 require 'appium_lib'
 require 'appium_lib/version'
-from version import SDK_VERSION
+require_relative 'version'
 
 class Environment
   @percy_build_id = nil

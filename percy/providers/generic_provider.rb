@@ -47,8 +47,8 @@ class GenericProvider
     name = kwargs[:device_name] || metadata.device_name
     os_name = metadata.os_name
     os_version = metadata.os_version
-    width = metadata.device_screen_size[:width] || 1
-    height = metadata.device_screen_size[:height] || 1
+    width = metadata.device_screen_size["width"] || 1
+    height = metadata.device_screen_size["height"] || 1
     orientation = metadata.get_orientation(**kwargs).downcase
 
     {
@@ -81,7 +81,7 @@ class GenericProvider
     ]
   end
 
-  def _find_regions(xpaths, accessibility_ids, appium_elements, custom_locations)
+  def _find_regions(xpaths:, accessibility_ids:, appium_elements:, custom_locations:)
     elements_array = []
     get_regions_by_xpath(elements_array, xpaths)
     get_regions_by_ids(elements_array, accessibility_ids)
@@ -111,7 +111,7 @@ class GenericProvider
       left: location.x * scale_factor,
       right: (location.x + size.width) * scale_factor
     }
-    { selector: selector, coordinates: coordinates }
+    { selector: selector, coOrdinates: coordinates }
   end
 
   def get_regions_by_xpath(elements_array, xpaths)
@@ -158,12 +158,12 @@ class GenericProvider
 
   def get_regions_by_location(elements_array, custom_locations)
     custom_locations.each_with_index do |custom_location, index|
-      screen_width = metadata[:device_screen_size][:width]
-      screen_height = metadata[:device_screen_size][:height]
+      screen_width = metadata.device_screen_size["width"]
+      screen_height = metadata.device_screen_size["height"]
       if custom_location.valid?(screen_height, screen_width)
         region = {
           selector: "custom ignore region: #{index}",
-          coordinates: {
+          coOrdinates: {
             top: custom_location.top,
             bottom: custom_location.bottom,
             left: custom_location.left,

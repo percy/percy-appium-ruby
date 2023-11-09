@@ -6,6 +6,7 @@ DEVICE_INFO = JSON.parse(File.read(DEVICE_INFO_FILE_PATH))
 
 class Metadata
   attr_reader :driver, :device_info
+  attr_accessor :device_name, :os_version, :device_info
 
   def initialize(driver)
     @driver = driver
@@ -23,11 +24,11 @@ class Metadata
   end
 
   def os_name
-    capabilities['platformName']
+    capabilities.as_json['platformName']
   end
 
   def os_version
-    os_version = capabilities['os_version'] || capabilities['platformVersion'] || ''
+    os_version = capabilities.as_json['os_version'] || capabilities.as_json['platformVersion'] || ''
     os_version = @os_version || os_version
     begin
       os_version.to_f.to_i.to_s
@@ -37,17 +38,17 @@ class Metadata
   end
 
   def remote_url
-    driver.command_executor.url
+    driver.instance_variable_get(:@bridge).instance_variable_get(:@http).instance_variable_get(:@server_url).to_s
   end
 
   def get_orientation(**kwargs)
-    orientation = kwargs[:orientation] || capabilities['orientation'] || 'PORTRAIT'
+    orientation = kwargs[:orientation] || capabilities.as_json['orientation'] || 'PORTRAIT'
     orientation = orientation.downcase
-    orientation = orientation == 'auto' ? self.orientation : orientation
+    orientation = orientation == 'auto' ? self._orientation : orientation
     orientation.upcase
   end
 
-  def orientation
+  def _orientation
     driver.orientation.downcase
   end
 
@@ -55,7 +56,7 @@ class Metadata
     raise NotImplementedError
   end
 
-  def device_name
+  def _device_name
     raise NotImplementedError
   end
 
