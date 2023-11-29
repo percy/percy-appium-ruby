@@ -228,7 +228,7 @@ class TestPercyScreenshot < Minitest::Test
       @server_url.expect(:to_s, 'https://hub-cloud.browserstack.com/wd/hub')
     end
     
-    5.times do
+    6.times do
       driver.expect(:execute_script, '{"success":true,"result":"[{\"sha\":\"sha-something\",\"status_bar\":null,\"nav_bar\":null,\"header_height\":0,\"footer_height\":0,\"index\":0}]"}', [String])
     end
 

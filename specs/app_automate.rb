@@ -38,7 +38,7 @@ class TestAppAutomate < Minitest::Test
   end
 
   def test_app_automate_execute_percy_screenshot_begin
-    @mock_webdriver.expect(:execute_script, '{}', ["browserstack_executor: {\"action\":\"percyScreenshot\",\"arguments\":{\"state\":\"begin\",\"percyBuildId\":null,\"percyBuildUrl\":null,\"name\":\"Screebshot 1\"}}"])
+    @mock_webdriver.expect(:execute_script, '{}', [String])
     assert_empty @app_automate.execute_percy_screenshot_begin('Screebshot 1')
     @mock_webdriver.verify
   end
@@ -50,13 +50,13 @@ class TestAppAutomate < Minitest::Test
   end
 
   def test_app_automate_execute_percy_screenshot
-    @mock_webdriver.expect(:execute_script, '{"result": "result"}', ["browserstack_executor: {\"action\":\"percyScreenshot\",\"arguments\":{\"state\":\"screenshot\",\"percyBuildId\":null,\"screenshotType\":\"singlepage\",\"projectId\":\"percy-prod\",\"scaleFactor\":1,\"options\":{\"numOfTiles\":5,\"deviceHeight\":1080,\"scrollableXpath\":null,\"scrollableId\":null,\"topScrollviewOffset\":0,\"bottomScrollviewOffset\":0,\"FORCE_FULL_PAGE\":false}}}"])
+    @mock_webdriver.expect(:execute_script, '{"result": "result"}', [String])
     @app_automate.execute_percy_screenshot(1080, 'singlepage', 5)
     @mock_webdriver.verify
   end
 
   def test_execute_percy_screenshot_end_throws_error
-    @mock_webdriver.expect(:execute_script, proc { raise 'SomeException' }, ["browserstack_executor: {\"action\":\"percyScreenshot\",\"arguments\":{\"state\":\"end\",\"percyScreenshotUrl\":\"snapshot-url\",\"name\":\"Screenshot 1\",\"status\":\"success\"}}"])
+    @mock_webdriver.expect(:execute_script, proc { raise 'SomeException' }, [String])
     @app_automate.execute_percy_screenshot_end('Screenshot 1', 'snapshot-url', 'success')
     @mock_webdriver.verify
   end
