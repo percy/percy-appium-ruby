@@ -2,7 +2,7 @@ class Cache
   attr_reader :cache
 
   @@cache = {}
-  CACHE_TIMEOUT = 50 * 60 # 5 * 60 seconds
+  CACHE_TIMEOUT = 5 * 60 # 5 * 60 seconds
   TIMEOUT_KEY = 'last_access_time'
 
   SESSION_DETAILS = 'session_details'
