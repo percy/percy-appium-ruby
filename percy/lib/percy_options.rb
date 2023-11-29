@@ -5,19 +5,17 @@ class PercyOptions
 
   def initialize(capabilities)
     @capabilities = capabilities
-    unless @capabilities.is_a?(Hash)
-      @capabilities = @capabilities.as_json
-    end
+    @capabilities = @capabilities.as_json unless @capabilities.is_a?(Hash)
     @percy_options = _parse_percy_options || {}
   end
 
   def _parse_percy_options
     options = PERCY_OPTIONS.map { |key| @capabilities.fetch(key, nil) }
-    if options.any? { |element| !element.nil? }
-      options = options[0] || options[1]
-    else
-      options = {}
-    end
+    options = if options.any? { |element| !element.nil? }
+                options[0] || options[1]
+              else
+                {}
+              end
 
     if options
       options[IGNORE_ERRORS] = @capabilities.fetch("percy.#{IGNORE_ERRORS}", true) unless options.key?(IGNORE_ERRORS)
@@ -35,4 +33,3 @@ class PercyOptions
     @percy_options.fetch(ENABLED, true)
   end
 end
-

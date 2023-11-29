@@ -1,7 +1,6 @@
 require 'minitest/autorun'
 require 'json'
 require 'webmock/minitest'
-require 'thread'
 require 'appium_lib'
 require 'webrick'
 
@@ -9,9 +8,8 @@ require_relative '../percy/screenshot'
 require_relative '../percy/lib/app_percy'
 require_relative 'mocks/mock_methods'
 
-
 class MockServerRequestHandler < WEBrick::HTTPServlet::AbstractServlet
-  def do_GET(request, response)
+  def do_GET(_request, response)
     response.status = 200
     response['Content-Type'] = 'application/json'
     response.body = 'Screenshot Me'
@@ -40,16 +38,17 @@ def mock_healthcheck(fail: false, fail_how: 'error', type: 'AppPercy')
   stub_request(:get, 'http://localhost:5338/percy/healthcheck')
     .with(headers: health_headers)
     .to_return(body: health_body, status: health_status)
-  
-  stub_request(:get, "http://localhost:5338/percy/healthcheck").
-  with(
-    headers: {
-          'Accept'=>'*/*',
-          'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-          'Host'=>'localhost:5338',
-          'User-Agent'=>'Ruby'
-    }).
-  to_return(status: health_status, body: health_body, headers: health_headers)
+
+  stub_request(:get, 'http://localhost:5338/percy/healthcheck')
+    .with(
+      headers: {
+        'Accept' => '*/*',
+        'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+        'Host' => 'localhost:5338',
+        'User-Agent' => 'Ruby'
+      }
+    )
+    .to_return(status: health_status, body: health_body, headers: health_headers)
 end
 
 def mock_screenshot(fail: false)
@@ -63,8 +62,8 @@ def mock_poa_screenshot(fail: false)
 end
 
 def mock_session_request
-  stub_request(:post, "http://127.0.0.1:4723/wd/hub/session")
-    .to_return(status: 200, body: "", headers: {})
+  stub_request(:post, 'http://127.0.0.1:4723/wd/hub/session')
+    .to_return(status: 200, body: '', headers: {})
 end
 
 class TestPercyScreenshot < Minitest::Test
@@ -76,7 +75,7 @@ class TestPercyScreenshot < Minitest::Test
     @mock_webdriver.expect(:class, Appium::Core::Base::Driver)
     WebMock.enable!
     @requests = []
-    WebMock.after_request do |request, response|
+    WebMock.after_request do |request, _response|
       @requests << request
     end
   end
@@ -98,7 +97,6 @@ class TestPercyScreenshot < Minitest::Test
       @bridge.expect(:instance_variable_get, @http, [:@http])
       @server_url.expect(:to_s, 'https://hub-cloud.browserstack.com/wd/hub')
     end
-    
 
     assert_raises(TypeError) { AppPercy.new(@mock_webdriver).screenshot(123) }
     assert_raises(TypeError) { AppPercy.new(@mock_webdriver).screenshot('screenshot 1', device_name: 123) }
@@ -107,7 +105,7 @@ class TestPercyScreenshot < Minitest::Test
     assert_raises(TypeError) { AppPercy.new(@mock_webdriver).screenshot('screenshot 1', status_bar_height: 'height') }
     assert_raises(TypeError) { AppPercy.new(@mock_webdriver).screenshot('screenshot 1', nav_bar_height: 'height') }
   end
-  
+
   def test_throws_error_when_a_driver_is_not_provided
     assert_raises(Exception) { percy_screenshot }
   end
@@ -192,9 +190,9 @@ class TestPercyScreenshot < Minitest::Test
     assert_equal(driver_caps, s1['capabilities'])
     driver_desired_caps = driver.desired_capabilities
     assert_equal(driver_desired_caps, s1['sessionCapabilities'])
-    assert_match(/percy-appium-app\/\d+/, s1['client_info'])
-    assert_match(/appium\/\d+/, s1['environment_info'][0])
-    assert_match(/ruby\/\d+\.\d+\.\d+/, s1['environment_info'][1])
+    assert_match(%r{percy-appium-app/\d+}, s1['client_info'])
+    assert_match(%r{appium/\d+}, s1['environment_info'][0])
+    assert_match(%r{ruby/\d+\.\d+\.\d+}, s1['environment_info'][1])
 
     s2 = JSON.parse(@requests[-1].body)
     assert_equal('Snapshot 2', s2['snapshotName'])
@@ -212,7 +210,7 @@ class TestPercyScreenshot < Minitest::Test
     2.times do
       driver.expect(:is_a?, true, [Appium::Core::Base::Driver])
     end
-    
+
     10.times do
       driver.expect(:session_id, 'Dummy_session_id')
     end
@@ -220,23 +218,24 @@ class TestPercyScreenshot < Minitest::Test
     26.times do
       driver.expect(:capabilities, get_android_capabilities)
     end
-    
+
     2.times do
       driver.expect(:instance_variable_get, @bridge, [:@bridge])
       @http.expect(:instance_variable_get, @server_url, [:@server_url])
       @bridge.expect(:instance_variable_get, @http, [:@http])
       @server_url.expect(:to_s, 'https://hub-cloud.browserstack.com/wd/hub')
     end
-    
+
     6.times do
-      driver.expect(:execute_script, '{"success":true,"result":"[{\"sha\":\"sha-something\",\"status_bar\":null,\"nav_bar\":null,\"header_height\":0,\"footer_height\":0,\"index\":0}]"}', [String])
+      driver.expect(:execute_script,
+                    '{"success":true,"result":"[{\"sha\":\"sha-something\",\"status_bar\":null,\"nav_bar\":null,\"header_height\":0,\"footer_height\":0,\"index\":0}]"}', [String])
     end
 
     4.times do
       driver.expect(:get_system_bars, {
-        "statusBar" => { "height" => 10, "width" => 20 },
-        "navigationBar" => { "height" => 10, "width" => 20 }
-      })
+                      'statusBar' => { 'height' => 10, 'width' => 20 },
+                      'navigationBar' => { 'height' => 10, 'width' => 20 }
+                    })
     end
 
     percy_screenshot(driver, 'screenshot 1')
@@ -245,9 +244,9 @@ class TestPercyScreenshot < Minitest::Test
     assert_equal('/percy/comparison', @requests.last.uri.path)
 
     body = JSON.parse(@requests[-1].body)
-    assert_match(/percy-appium-app\/\d+/, body['client_info'])
-    assert_match(/appium\/\d+/, body['environment_info'][0])
-    assert_match(/ruby\/\d+\.\d+\.\d+/, body['environment_info'][1])
+    assert_match(%r{percy-appium-app/\d+}, body['client_info'])
+    assert_match(%r{appium/\d+}, body['environment_info'][0])
+    assert_match(%r{ruby/\d+\.\d+\.\d+}, body['environment_info'][1])
   end
 
   def test_ignore_region_screenshots_to_the_local_percy_server
@@ -265,7 +264,7 @@ class TestPercyScreenshot < Minitest::Test
     2.times do
       driver.expect(:is_a?, true, [Appium::Core::Base::Driver])
     end
-    
+
     10.times do
       driver.expect(:session_id, 'Dummy_session_id')
     end
@@ -273,33 +272,35 @@ class TestPercyScreenshot < Minitest::Test
     26.times do
       driver.expect(:capabilities, get_android_capabilities)
     end
-    
+
     2.times do
       driver.expect(:instance_variable_get, @bridge, [:@bridge])
       @http.expect(:instance_variable_get, @server_url, [:@server_url])
       @bridge.expect(:instance_variable_get, @http, [:@http])
       @server_url.expect(:to_s, 'https://hub-cloud.browserstack.com/wd/hub')
     end
-    
+
     5.times do
-      driver.expect(:execute_script, '{"success":true,"result":"[{\"sha\":\"sha-something\",\"status_bar\":null,\"nav_bar\":null,\"header_height\":0,\"footer_height\":0,\"index\":0}]"}', [String])
+      driver.expect(:execute_script,
+                    '{"success":true,"result":"[{\"sha\":\"sha-something\",\"status_bar\":null,\"nav_bar\":null,\"header_height\":0,\"footer_height\":0,\"index\":0}]"}', [String])
     end
 
     4.times do
       driver.expect(:get_system_bars, {
-        "statusBar" => { "height" => 10, "width" => 20 },
-        "navigationBar" => { "height" => 10, "width" => 20 }
-      })
+                      'statusBar' => { 'height' => 10, 'width' => 20 },
+                      'navigationBar' => { 'height' => 10, 'width' => 20 }
+                    })
     end
-    driver.expect(:find_element, mock_element, [Appium::Core::Base::SearchContext::FINDERS[:xpath], '//path/to/element'])
+    driver.expect(:find_element, mock_element,
+                  [Appium::Core::Base::SearchContext::FINDERS[:xpath], '//path/to/element'])
 
     percy_screenshot(driver, 'screenshot 1', ignore_regions_xpaths: xpaths)
 
     assert_equal('/percy/comparison', @requests.last.uri.path)
 
     body = JSON.parse(@requests[-1].body)
-    assert_match(/percy-appium-app\/\d+/, body['client_info'])
-    assert_match(/appium\/\d+/, body['environment_info'][0])
+    assert_match(%r{percy-appium-app/\d+}, body['client_info'])
+    assert_match(%r{appium/\d+}, body['environment_info'][0])
     assert_equal(body['ignored_elements_data']['ignoreElementsData'].size, 1)
 
     ignored_element_data = body['ignored_elements_data']['ignoreElementsData'][0]

@@ -24,22 +24,20 @@ class CLIWrapper
 
       data = JSON.parse(response.body)
       raise CLIException, data['error'] unless data['success']
+
       Environment.percy_build_id = data['build']['id']
       Environment.percy_build_url = data['build']['url']
       Environment.session_type = data.fetch('type', nil)
-
 
       version = response['x-percy-core-version']
       if version.split('.')[0] != '1'
         log("Unsupported Percy CLI version, #{version}")
         return false
       end
-      if version.split('.')[1].to_i < 27
-        log('Please upgrade to the latest CLI version for using this SDK. Minimum compatible version is 1.27.0-beta.0')
-        return false
-      else
-        return true
-      end
+      return true unless version.split('.')[1].to_i < 27
+
+      log('Please upgrade to the latest CLI version for using this SDK. Minimum compatible version is 1.27.0-beta.0')
+      return false
     rescue StandardError => e
       log('Percy is not running, disabling screenshots')
       log(e, on_debug: true)
@@ -47,10 +45,11 @@ class CLIWrapper
     end
   end
 
-  def post_screenshots(name, tag, tiles, external_debug_url=nil, ignored_elements_data=nil, considered_elements_data=nil)
+  def post_screenshots(name, tag, tiles, external_debug_url = nil, ignored_elements_data = nil,
+                       considered_elements_data = nil)
     body = request_body(name, tag, tiles, external_debug_url, ignored_elements_data, considered_elements_data)
-    body['client_info'] = Environment.get_client_info()
-    body['environment_info'] = Environment.get_env_info()
+    body['client_info'] = Environment.get_client_info
+    body['environment_info'] = Environment.get_env_info
 
     uri = URI("#{PERCY_CLI_API}/percy/comparison")
     http = Net::HTTP.new(uri.host, uri.port)
@@ -67,13 +66,13 @@ class CLIWrapper
 
   def self.post_failed_event(error)
     body = {
-      "clientInfo" => Environment.get_client_info(true),
-      "message" => error,
-      "errorKind" => 'sdk'
+      'clientInfo' => Environment.get_client_info(true),
+      'message' => error,
+      'errorKind' => 'sdk'
     }
 
     uri = URI("#{PERCY_CLI_API}/percy/events")
-    response = Net::HTTP.post(uri, body.to_json, "Content-Type" => "application/json")
+    response = Net::HTTP.post(uri, body.to_json, 'Content-Type' => 'application/json')
 
     # Handle errors
     if response.code.to_i != 200
@@ -83,9 +82,9 @@ class CLIWrapper
     end
 
     JSON.parse(response.body)
-    rescue => e
-      log(e.message, on_debug: true)
-      nil
+  rescue StandardError => e
+    log(e.message, on_debug: true)
+    nil
   end
 
   def post_poa_screenshots(name, session_id, command_executor_url, capabilities, desired_capabilities, options = nil)
@@ -102,7 +101,7 @@ class CLIWrapper
     body['environment_info'] = Environment.get_env_info
 
     uri = URI("#{PERCY_CLI_API}/percy/automateScreenshot")
-    response = Net::HTTP.post(uri, body.to_json, "Content-Type" => "application/json")
+    response = Net::HTTP.post(uri, body.to_json, 'Content-Type' => 'application/json')
 
     # Handle errors
     raise CLIException, "Error: #{response.message}" unless response.is_a?(Net::HTTPSuccess)
@@ -120,12 +119,12 @@ class CLIWrapper
   def request_body(name, tag, tiles, external_debug_url, ignored_elements_data, considered_elements_data)
     tiles = tiles.map(&:to_h)
     {
-      "name" => name,
-      "tag" => tag,
-      "tiles" => tiles,
-      "ignored_elements_data" => ignored_elements_data,
-      "external_debug_url" => external_debug_url,
-      "considered_elements_data" => considered_elements_data
+      'name' => name,
+      'tag' => tag,
+      'tiles' => tiles,
+      'ignored_elements_data' => ignored_elements_data,
+      'external_debug_url' => external_debug_url,
+      'considered_elements_data' => considered_elements_data
     }
   end
 end

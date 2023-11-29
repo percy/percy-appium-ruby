@@ -31,7 +31,8 @@ class TestIOSMetadata < Minitest::Test
   end
 
   def test_get_window_size
-    height, width = 100, 100
+    height = 100
+    width = 100
     window_size = { 'height' => height, 'width' => width }
     @mock_webdriver.expect(:get_window_size, window_size)
     session_id = 'session_id_123'
@@ -48,24 +49,24 @@ class TestIOSMetadata < Minitest::Test
     5.times do
       @mock_webdriver.expect(:session_id, session_id)
     end
-    @mock_webdriver.expect(:capabilities, {"deviceName" => 'iPhone 6'})
+    @mock_webdriver.expect(:capabilities, { 'deviceName' => 'iPhone 6' })
     @mock_webdriver.expect(:get_window_size, { 'height' => 100, 'width' => 100 })
     device_screen_size = @ios_metadata.device_screen_size
     assert_equal({ 'height' => 200, 'width' => 200 }, device_screen_size)
   end
 
   def test_status_bar
-    @mock_webdriver.expect(:capabilities, {"deviceName" => 'iPhone 6'})
+    @mock_webdriver.expect(:capabilities, { 'deviceName' => 'iPhone 6' })
     session_id = 'session_id_123'
     @mock_webdriver.expect(:session_id, session_id)
     @mock_webdriver.expect(:session_id, session_id)
-    
+
     status_bar = @ios_metadata.status_bar
     assert_equal({ 'height' => 40 }, status_bar)
   end
 
   def test_scale_factor_present_in_devices_json
-    @mock_webdriver.expect(:capabilities, {"deviceName" => 'iPhone 6'})
+    @mock_webdriver.expect(:capabilities, { 'deviceName' => 'iPhone 6' })
     assert_equal(2, @ios_metadata.scale_factor)
   end
 
@@ -75,11 +76,10 @@ class TestIOSMetadata < Minitest::Test
     4.times do
       @mock_webdriver.expect(:session_id, session_id)
     end
-    @mock_webdriver.expect(:capabilities, {"deviceName" => 'iPhone 14'})
+    @mock_webdriver.expect(:capabilities, { 'deviceName' => 'iPhone 14' })
     @mock_webdriver.expect(:get_window_size, window_size)
     @mock_webdriver.expect(:execute_script, { 'height' => 100, 'width' => 200 }, ['mobile: viewportRect'])
 
     assert_equal(2, @ios_metadata.scale_factor)
   end
 end
-

@@ -18,7 +18,6 @@ class TestAndroidMetadata < Minitest::Test
 
     assert_equal(output, @android_metadata.execute_script(command))
     @mock_webdriver.verify
-    
   end
 
   def test_viewport

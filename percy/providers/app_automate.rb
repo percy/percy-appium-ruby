@@ -27,7 +27,7 @@ class AppAutomate < GenericProvider
       response = super(name, **kwargs)
       percy_screenshot_url = response.fetch('link', '')
       execute_percy_screenshot_end(name, percy_screenshot_url, 'success')
-    rescue => e
+    rescue StandardError => e
       execute_percy_screenshot_end(name, percy_screenshot_url, 'failure', e.message)
       raise e
     end
@@ -42,9 +42,7 @@ class AppAutomate < GenericProvider
   def _get_tiles(**kwargs)
     fullpage_ss = kwargs[:fullpage] || false
     if ENV['PERCY_DISABLE_REMOTE_UPLOADS'] == 'true'
-      if fullpage_ss
-        puts("Full page screenshots are only supported when 'PERCY_DISABLE_REMOTE_UPLOADS' is not set")
-      end
+      puts("Full page screenshots are only supported when 'PERCY_DISABLE_REMOTE_UPLOADS' is not set") if fullpage_ss
       return super(**kwargs) unless fullpage_ss
     end
     screenshot_type = fullpage_ss ? 'fullpage' : 'singlepage'
@@ -94,12 +92,12 @@ class AppAutomate < GenericProvider
     command = "browserstack_executor: #{request_body.to_json}"
     begin
       response = metadata.execute_script(command)
-      return JSON.parse(response)
-    rescue => e
+      JSON.parse(response)
+    rescue StandardError => e
       log('Could not set session as Percy session')
       log('Error occurred during begin call', on_debug: true)
       log(e, on_debug: true)
-      return nil
+      nil
     end
   end
 
@@ -117,15 +115,15 @@ class AppAutomate < GenericProvider
     command = "browserstack_executor: #{request_body.to_json}"
     begin
       metadata.execute_script(command)
-    rescue => e
+    rescue StandardError => e
       log('Error occurred during end call', on_debug: true)
       log(e, on_debug: true)
     end
   end
 
-  def execute_percy_screenshot(device_height, screenshotType, screen_lengths, scrollable_xpath=nil, 
-                              scrollable_id=nil, scale_factor=1, top_scrollview_offset=0,
-                              bottom_scrollview_offset=0)
+  def execute_percy_screenshot(device_height, screenshotType, screen_lengths, scrollable_xpath = nil,
+                               scrollable_id = nil, scale_factor = 1, top_scrollview_offset = 0,
+                               bottom_scrollview_offset = 0)
     project_id = ENV['PERCY_ENABLE_DEV'] == 'true' ? 'percy-dev' : 'percy-prod'
     request_body = {
       action: 'percyScreenshot',
@@ -142,21 +140,18 @@ class AppAutomate < GenericProvider
           scrollableId: scrollable_id,
           topScrollviewOffset: top_scrollview_offset,
           bottomScrollviewOffset: bottom_scrollview_offset,
-          "FORCE_FULL_PAGE" => ENV['FORCE_FULL_PAGE'] == 'true'
+          'FORCE_FULL_PAGE' => ENV['FORCE_FULL_PAGE'] == 'true'
         }
       }
     }
     command = "browserstack_executor: #{request_body.to_json}"
     begin
       response = metadata.execute_script(command)
-      return JSON.parse(response)
-    rescue => e
+      JSON.parse(response)
+    rescue StandardError => e
       log('Error occurred during screenshot call', on_debug: true)
       log(e, on_debug: true)
       raise e
     end
-
   end
-
 end
-

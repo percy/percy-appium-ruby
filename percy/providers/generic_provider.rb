@@ -39,27 +39,25 @@ class GenericProvider
         custom_locations: kwargs.fetch(:custom_consider_regions, [])
       )
     }
-  
-    _post_screenshots(name, tag, tiles, get_debug_url(), ignore_regions, consider_regions)
-  end
-  
 
+    _post_screenshots(name, tag, tiles, get_debug_url, ignore_regions, consider_regions)
+  end
 
   def _get_tag(**kwargs)
     name = kwargs[:device_name] || metadata.device_name
     os_name = metadata.os_name
     os_version = metadata.os_version
-    width = metadata.device_screen_size["width"] || 1
-    height = metadata.device_screen_size["height"] || 1
+    width = metadata.device_screen_size['width'] || 1
+    height = metadata.device_screen_size['height'] || 1
     orientation = metadata.get_orientation(**kwargs).downcase
 
     {
-      "name" => name,
-      "os_name" => os_name,
-      "os_version" => os_version,
-      "width" => width,
-      "height" => height,
-      "orientation" => orientation
+      'name' => name,
+      'os_name' => os_name,
+      'os_version' => os_version,
+      'width' => width,
+      'height' => height,
+      'orientation' => orientation
     }
   end
 
@@ -93,8 +91,7 @@ class GenericProvider
   end
 
   def _post_screenshots(name, tag, tiles, debug_url, ignored_regions, considered_regions)
-    response = CLIWrapper.new.post_screenshots(name, tag, tiles, debug_url, ignored_regions, considered_regions)
-    response
+    CLIWrapper.new.post_screenshots(name, tag, tiles, debug_url, ignored_regions, considered_regions)
   end
 
   def _write_screenshot(png_bytes, directory)
@@ -108,62 +105,56 @@ class GenericProvider
     location = hashed(element.location)
     size = hashed(element.size)
     coordinates = {
-      "top" => location["y"] * scale_factor,
-      "bottom" => (location["y"] + size["height"]) * scale_factor,
-      "left" => location["x"] * scale_factor,
-      "right" => (location["x"] + size["width"]) * scale_factor
+      'top' => location['y'] * scale_factor,
+      'bottom' => (location['y'] + size['height']) * scale_factor,
+      'left' => location['x'] * scale_factor,
+      'right' => (location['x'] + size['width']) * scale_factor
     }
-    { "selector" => selector, "coOrdinates" => coordinates }
+    { 'selector' => selector, 'coOrdinates' => coordinates }
   end
 
   def get_regions_by_xpath(elements_array, xpaths)
     xpaths.each do |xpath|
-      begin
-        element = driver.find_element(Appium::Core::Base::SearchContext::FINDERS[:xpath], xpath)
-        selector = "xpath: #{xpath}"
-        if element
-          region = get_region_object(selector, element)
-          elements_array << region
-        end
-      rescue Appium::Core::Error::NoSuchElementError => e
-        log("Appium Element with xpath: #{xpath} not found. Ignoring this xpath.")
-        log(e, on_debug: true)
+      element = driver.find_element(Appium::Core::Base::SearchContext::FINDERS[:xpath], xpath)
+      selector = "xpath: #{xpath}"
+      if element
+        region = get_region_object(selector, element)
+        elements_array << region
       end
+    rescue Appium::Core::Error::NoSuchElementError => e
+      log("Appium Element with xpath: #{xpath} not found. Ignoring this xpath.")
+      log(e, on_debug: true)
     end
   end
 
   def get_regions_by_ids(elements_array, ids)
     ids.each do |id|
-      begin
-        element = driver.find_element(Appium::Core::Base::SearchContext::FINDERS[:accessibility_id], id)
-        selector = "id: #{id}"
-        region = get_region_object(selector, element)
-        elements_array << region
-      rescue Appium::Core::Error::NoSuchElementError => e
-        log("Appium Element with id: #{id} not found. Ignoring this id.")
-        log(e, on_debug: true)
-      end
+      element = driver.find_element(Appium::Core::Base::SearchContext::FINDERS[:accessibility_id], id)
+      selector = "id: #{id}"
+      region = get_region_object(selector, element)
+      elements_array << region
+    rescue Appium::Core::Error::NoSuchElementError => e
+      log("Appium Element with id: #{id} not found. Ignoring this id.")
+      log(e, on_debug: true)
     end
   end
 
   def get_regions_by_elements(elements_array, elements)
     elements.each_with_index do |element, index|
-      begin
-        class_name = element.attribute('class')
-        selector = "element: #{index} #{class_name}"
-        region = get_region_object(selector, element)
-        elements_array << region
-      rescue Appium::Core::Error::NoSuchElementError => e
-        log("Correct Element not passed at index #{index}")
-        log(e, on_debug: true)
-      end
+      class_name = element.attribute('class')
+      selector = "element: #{index} #{class_name}"
+      region = get_region_object(selector, element)
+      elements_array << region
+    rescue Appium::Core::Error::NoSuchElementError => e
+      log("Correct Element not passed at index #{index}")
+      log(e, on_debug: true)
     end
   end
 
   def get_regions_by_location(elements_array, custom_locations)
     custom_locations.each_with_index do |custom_location, index|
-      screen_width = metadata.device_screen_size["width"]
-      screen_height = metadata.device_screen_size["height"]
+      screen_width = metadata.device_screen_size['width']
+      screen_height = metadata.device_screen_size['height']
       if custom_location.valid?(screen_height, screen_width)
         region = {
           selector: "custom ignore region: #{index}",
@@ -210,4 +201,3 @@ class GenericProvider
     file.path
   end
 end
-

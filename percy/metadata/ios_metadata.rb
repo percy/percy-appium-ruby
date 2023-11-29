@@ -3,6 +3,7 @@ require_relative '../lib/cache'
 
 class IOSMetadata < Metadata
   attr_reader :_window_size
+
   def initialize(driver)
     super(driver)
     @_viewport = {}
@@ -54,7 +55,7 @@ class IOSMetadata < Metadata
         @_viewport = execute_script('mobile: viewportRect')
         Cache.set_cache(session_id, Cache::VIEWPORT, @_viewport)
       rescue StandardError
-        log("Could not use viewportRect; using static config", on_debug: true)
+        log('Could not use viewportRect; using static config', on_debug: true)
         # setting `viewport` as empty hash so that it's not nil anymore
         Cache.set_cache(session_id, Cache::VIEWPORT, {})
       end
@@ -65,9 +66,7 @@ class IOSMetadata < Metadata
   def device_name
     if @device_name.nil?
       caps = capabilities
-      unless caps.is_a?(Hash)
-        caps = caps.as_json
-      end
+      caps = caps.as_json unless caps.is_a?(Hash)
       @device_name = caps['deviceName']
     end
     @device_name
@@ -75,10 +74,8 @@ class IOSMetadata < Metadata
 
   def scale_factor
     scale_factor = value_from_devices_info('scale_factor', device_name)
-    if scale_factor == 0
-      return viewport['width'] / get_window_size['width']
-    end
+    return viewport['width'] / get_window_size['width'] if scale_factor == 0
+
     scale_factor
   end
 end
-

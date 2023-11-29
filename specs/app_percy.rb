@@ -9,7 +9,7 @@ require_relative '../percy/lib/cli_wrapper'
 require_relative 'mocks/mock_methods'
 
 class TestAppPercy < Minitest::Test
-  COMPARISON_RESPONSE = {'link' => 'https://snapshot_url', 'success' => true}.freeze
+  COMPARISON_RESPONSE = { 'link' => 'https://snapshot_url', 'success' => true }.freeze
 
   def setup
     @mock_android_webdriver = Minitest::Mock.new
@@ -18,7 +18,7 @@ class TestAppPercy < Minitest::Test
     @http = Minitest::Mock.new
     @server_url = Minitest::Mock.new
   end
-  
+
   def test_android_on_app_automate
     3.times do
       @mock_android_webdriver.expect(:instance_variable_get, @bridge, [:@bridge])
@@ -87,27 +87,27 @@ class TestAppPercy < Minitest::Test
   end
 
   def test_screenshot_with_percy_options_disabled
-    disable_percy_options(@mock_android_webdriver, num=5)
+    disable_percy_options(@mock_android_webdriver, num = 5)
     make_mock_driver_appium(@mock_android_webdriver)
-    mock_driver_remote_url(@mock_android_webdriver, 'some-other-url', num=2)
+    mock_driver_remote_url(@mock_android_webdriver, 'some-other-url', num = 2)
     app_percy = AppPercy.new(@mock_android_webdriver)
     assert_nil app_percy.screenshot('screenshot 1')
   end
 
   def test_screenshot_with_percyoptions_disabled
-    disable_percy_options(@mock_android_webdriver, num=5)
+    disable_percy_options(@mock_android_webdriver, num = 5)
     make_mock_driver_appium(@mock_android_webdriver)
-    mock_driver_remote_url(@mock_android_webdriver, 'some-other-url', num=2)
+    mock_driver_remote_url(@mock_android_webdriver, 'some-other-url', num = 2)
     app_percy = AppPercy.new(@mock_android_webdriver)
     assert_nil app_percy.screenshot('screenshot 1')
   end
 
   def test_percy_options_ignore_errors
     @mock_android_webdriver.expect(:capabilities, {
-      'platformName': "android",
-      'percy:options' => {'ignoreErrors' => false}
-    })
-    
+                                     'platformName': 'android',
+                                     'percy:options' => { 'ignoreErrors' => false }
+                                   })
+
     assert_raises(Exception) do
       AppPercy.screenshot(@mock_android_webdriver, 'screenshot')
     end
@@ -137,16 +137,16 @@ class TestAppPercy < Minitest::Test
 
   private
 
-  def disable_percy_options(mock_webdriver, num=1)
+  def disable_percy_options(mock_webdriver, num = 1)
     num.times do
       mock_webdriver.expect(:capabilities, {
-        'platformName' => "android",
-        'percy:options' => {'enabled' => false}
-      })
+                              'platformName' => 'android',
+                              'percy:options' => { 'enabled' => false }
+                            })
     end
   end
 
-  def mock_driver_remote_url(mock_webdriver, url, num=1)
+  def mock_driver_remote_url(mock_webdriver, url, num = 1)
     num.times do
       mock_webdriver.expect(:instance_variable_get, @bridge, [:@bridge])
       @http.expect(:instance_variable_get, @server_url, [:@server_url])
@@ -161,10 +161,10 @@ class TestAppPercy < Minitest::Test
 
   def ignore_errors_test(mock_webdriver)
     mock_webdriver.expect(:capabilities, {
-      'platformName': "android",
-      'percy:options' => {'ignoreErrors' => false}
-    })
-    
+                            'platformName': 'android',
+                            'percy:options' => { 'ignoreErrors' => false }
+                          })
+
     assert_raises(Exception) do
       AppPercy.screenshot(mock_webdriver, 'screenshot')
     end

@@ -3,7 +3,10 @@ require_relative '../percy/lib/ignore_region'
 
 class TestIgnoreRegion < Minitest::Test
   def test_ignore_region_valid_input
-    top, bottom, left, right = 10, 20, 30, 40
+    top = 10
+    bottom = 20
+    left = 30
+    right = 40
     ignore_region = IgnoreRegion.new(top, bottom, left, right)
 
     assert_equal ignore_region.top, top
@@ -26,15 +29,18 @@ class TestIgnoreRegion < Minitest::Test
 
   def test_ignore_region_is_valid
     ignore_region = IgnoreRegion.new(10, 20, 30, 40)
-    screen_height, screen_width = 100, 200
+    screen_height = 100
+    screen_width = 200
     assert_equal true, ignore_region.valid?(screen_height, screen_width)
 
     ignore_region = IgnoreRegion.new(10, 200, 30, 400)
-    height, width = 100, 200
+    height = 100
+    width = 200
     assert_equal false, ignore_region.valid?(height, width)
 
     ignore_region = IgnoreRegion.new(10, 20, 30, 40)
-    screen_height, screen_width = 5, 10
+    screen_height = 5
+    screen_width = 10
     assert_equal false, ignore_region.valid?(screen_height, screen_width)
   end
 end

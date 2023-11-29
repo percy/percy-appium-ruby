@@ -2,7 +2,7 @@ require 'minitest/autorun'
 require 'minitest/mock'
 require 'appium_lib'
 
-require_relative '../percy/metadata/driver_metadata.rb' 
+require_relative '../percy/metadata/driver_metadata'
 
 class TestDriverMetadata < Minitest::Test
   def setup
@@ -51,10 +51,10 @@ class TestDriverMetadata < Minitest::Test
     @mock_webdriver.expect(:session_id, session_id)
     @mock_webdriver.expect(:session_id, session_id)
     @mock_webdriver.expect(:desired_capabilities, {
-      'platform' => 'chrome_android',
-      'browserVersion' => '115.0.1',
-      'session_name' => 'abc'
-    })
+                             'platform' => 'chrome_android',
+                             'browserVersion' => '115.0.1',
+                             'session_name' => 'abc'
+                           })
     session_caps = {
       'platform' => 'chrome_android',
       'browserVersion' => '115.0.1',

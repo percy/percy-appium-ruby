@@ -6,6 +6,7 @@ require_relative '../metadata/metadata_resolver'
 
 class AppPercy
   attr_accessor :metadata, :provider
+
   def initialize(driver)
     raise DriverNotSupported unless driver.is_a?(Appium::Core::Base::Driver)
 
@@ -24,22 +25,29 @@ class AppPercy
     raise TypeError, 'Argument device_name should be a String' if device_name && !device_name.is_a?(String)
 
     fullscreen = kwargs[:full_screen]
-    raise TypeError, 'Argument fullscreen should be a Boolean' if fullscreen && !fullscreen.is_a?(TrueClass) && !fullscreen.is_a?(FalseClass)
+    if fullscreen && !fullscreen.is_a?(TrueClass) && !fullscreen.is_a?(FalseClass)
+      raise TypeError,
+            'Argument fullscreen should be a Boolean'
+    end
 
     status_bar_height = kwargs[:status_bar_height]
-    raise TypeError, 'Argument status_bar_height should be an Integer' if status_bar_height && !status_bar_height.is_a?(Integer)
+    if status_bar_height && !status_bar_height.is_a?(Integer)
+      raise TypeError,
+            'Argument status_bar_height should be an Integer'
+    end
 
     nav_bar_height = kwargs[:nav_bar_height]
     raise TypeError, 'Argument nav_bar_height should be an Integer' if nav_bar_height && !nav_bar_height.is_a?(Integer)
 
     orientation = kwargs[:orientation]
-    raise TypeError, 'Argument orientation should be a String and portrait/landscape' if orientation && !orientation.is_a?(String)
+    if orientation && !orientation.is_a?(String)
+      raise TypeError,
+            'Argument orientation should be a String and portrait/landscape'
+    end
 
     @provider.screenshot(name, **kwargs)
     nil
   end
 
-  def percy_options
-    @percy_options
-  end
+  attr_reader :percy_options
 end

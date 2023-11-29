@@ -21,7 +21,7 @@ class TestMetadata < Minitest::Test
     device_config = @metadata.get_device_info('iPhone 6')
     refute_equal({}, @metadata.device_info)
     assert_equal(device_config, @metadata.get_device_info('iPhone 6'))
-    
+
     ENV['PERCY_LOGLEVEL'] = 'debug'
   end
 
@@ -34,16 +34,16 @@ class TestMetadata < Minitest::Test
 
   def test_metadata_get_orientation
     orientation = 'PRTRT'
-    @mock_webdriver.expect(:get_orientation, orientation, [{"orientation": orientation}])
+    @mock_webdriver.expect(:get_orientation, orientation, [{ "orientation": orientation }])
     assert(orientation, @metadata.get_orientation(orientation: orientation))
 
     orientation = 'prtrt'
-    @mock_webdriver.expect(:get_orientation, orientation, [{"orientation": orientation}])
+    @mock_webdriver.expect(:get_orientation, orientation, [{ "orientation": orientation }])
     assert_equal(orientation.upcase, @metadata.get_orientation(orientation: orientation))
 
     orientation = 'OriENTation'
-    @mock_webdriver.expect(:get_orientation, orientation, [{"orientation": "AUTO"}])
-    
+    @mock_webdriver.expect(:get_orientation, orientation, [{ "orientation": 'AUTO' }])
+
     @mock_webdriver.expect(:orientation, orientation)
     assert(orientation.upcase, @metadata.get_orientation(orientation: 'AUTO'))
 
@@ -55,10 +55,10 @@ class TestMetadata < Minitest::Test
 
     orientation = 'OriEntaTion'
     @mock_webdriver.expect(:capabilities, { 'orientation' => orientation })
-    assert_equal(orientation.upcase, @metadata.get_orientation())
+    assert_equal(orientation.upcase, @metadata.get_orientation)
 
     @mock_webdriver.expect(:capabilities, {})
-    assert_equal('PORTRAIT', @metadata.get_orientation())
+    assert_equal('PORTRAIT', @metadata.get_orientation)
   end
 
   def test_metadata_session_id

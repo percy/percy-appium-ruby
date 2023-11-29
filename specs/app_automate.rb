@@ -15,7 +15,8 @@ class TestAppAutomate < Minitest::Test
   end
 
   def test_app_automate_get_debug_url
-    @app_automate.set_debug_url('deviceName' => 'Google Pixel 4', 'osVersion' => '12.0', 'buildHash' => 'abc', 'sessionHash' => 'def')
+    @app_automate.set_debug_url('deviceName' => 'Google Pixel 4', 'osVersion' => '12.0', 'buildHash' => 'abc',
+                                'sessionHash' => 'def')
     debug_url = @app_automate.get_debug_url
     assert_equal 'https://app-automate.browserstack.com/dashboard/v2/builds/abc/sessions/def', debug_url
   end
@@ -45,7 +46,8 @@ class TestAppAutomate < Minitest::Test
 
   def test_app_automate_execute_percy_screenshot_end
     @mock_webdriver.expect(:execute_script, '{}', [String])
-    assert_equal "{}", @app_automate.execute_percy_screenshot_end('Screenshot 1', COMPARISON_RESPONSE['link'], 'success')
+    assert_equal '{}',
+                 @app_automate.execute_percy_screenshot_end('Screenshot 1', COMPARISON_RESPONSE['link'], 'success')
     @mock_webdriver.verify
   end
 
@@ -103,8 +105,8 @@ class TestAppAutomate < Minitest::Test
     end
 
     @app_automate.stub(:execute_percy_screenshot, {
-      'result' => '[{"sha":"sha-25568755","status_bar":null,"nav_bar":null,"header_height":120,"footer_height":80,"index":0}]'
-    }) do
+                         'result' => '[{"sha":"sha-25568755","status_bar":null,"nav_bar":null,"header_height":120,"footer_height":80,"index":0}]'
+                       }) do
       result = @app_automate._get_tiles(fullpage: true)[0]
       assert_equal('sha', result.sha)
       assert_equal(100, result.status_bar_height)

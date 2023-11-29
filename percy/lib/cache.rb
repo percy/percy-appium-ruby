@@ -1,7 +1,7 @@
 class Cache
   attr_reader :cache
 
-  @@cache = Hash.new
+  @@cache = {}
   CACHE_TIMEOUT = 50 * 60 # 5 * 60 seconds
   TIMEOUT_KEY = 'last_access_time'
 
@@ -49,4 +49,3 @@ class Cache
     session_ids.each { |session_id| @@cache.delete(session_id) }
   end
 end
-

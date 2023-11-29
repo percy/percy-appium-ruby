@@ -18,9 +18,7 @@ class Metadata
 
   def capabilities
     caps = driver.capabilities
-    unless caps.is_a?(Hash)
-      caps = caps.as_json
-    end
+    caps = caps.as_json unless caps.is_a?(Hash)
     caps
   end
 
@@ -29,20 +27,18 @@ class Metadata
   end
 
   def os_name
-    capabilities["platformName"]
+    capabilities['platformName']
   end
 
   def os_version
     caps = capabilities
-    unless caps.is_a?(Hash)
-      caps = caps.as_json
-    end
+    caps = caps.as_json unless caps.is_a?(Hash)
 
     os_version = caps['os_version'] || caps['platformVersion'] || ''
     os_version = @os_version || os_version
     begin
       os_version.to_f.to_i.to_s
-    rescue
+    rescue StandardError
       ''
     end
   end
@@ -54,7 +50,7 @@ class Metadata
   def get_orientation(**kwargs)
     orientation = kwargs[:orientation] || capabilities['orientation'] || 'PORTRAIT'
     orientation = orientation.downcase
-    orientation = orientation == 'auto' ? self._orientation : orientation
+    orientation = orientation == 'auto' ? _orientation : orientation
     orientation.upcase
   end
 
@@ -96,19 +92,15 @@ class Metadata
 
   def value_from_devices_info(key, device_name, os_version = nil)
     device_info = get_device_info(device_name)
-    if os_version
-      device_info = device_info[os_version] || {}
-    end
+    device_info = device_info[os_version] || {} if os_version
     device_info[key].to_i || 0
   end
 
   def get_device_info(device_name)
     return @device_info unless @device_info.empty?
+
     @device_info = DEVICE_INFO[device_name.downcase] || {}
-    if @device_info.empty?
-      log("#{device_name.downcase} does not exist in config.")
-    end
+    log("#{device_name.downcase} does not exist in config.") if @device_info.empty?
     @device_info
   end
 end
-

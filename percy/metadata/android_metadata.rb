@@ -11,9 +11,7 @@ class AndroidMetadata < Metadata
 
   def device_screen_size
     caps = capabilities
-    unless caps.is_a?(Hash)
-      caps = caps.as_json
-    end
+    caps = caps.as_json unless caps.is_a?(Hash)
     width, height = caps['deviceScreenSize'].split('x')
     { 'width' => width.to_i, 'height' => height.to_i }
   end
@@ -58,7 +56,7 @@ class AndroidMetadata < Metadata
   end
 
   def viewport
-    capabilities.to_json["viewportRect"]
+    capabilities.to_json['viewportRect']
   end
 
   def scale_factor
@@ -77,4 +75,3 @@ class AndroidMetadata < Metadata
     @device_name
   end
 end
-

@@ -8,9 +8,7 @@ class ProviderResolver
     metadata = MetadataResolver.resolve(driver)
     providers = [AppAutomate, GenericProvider]
     providers.each do |provider|
-      if provider.supports(metadata.remote_url)
-        return provider.new(driver, metadata)
-      end
+      return provider.new(driver, metadata) if provider.supports(metadata.remote_url)
     end
     raise UnknownProvider
   end
