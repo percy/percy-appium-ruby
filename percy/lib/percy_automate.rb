@@ -1,5 +1,7 @@
 require 'appium_lib'
 require_relative '../exceptions/exceptions'
+require_relative '../metadata/driver_metadata'
+require_relative '../lib/cli_wrapper'
 
 IGNORE_ELEMENT_KEY = 'ignore_region_appium_elements'.freeze
 IGNORE_ELEMENT_ALT_KEY = 'ignoreRegionAppiumElements'.freeze
@@ -17,7 +19,7 @@ class PercyOnAutomate
     end
 
     def screenshot(name, **options)
-        return nil unless @percy_options.enabled?
+        return nil unless @percy_options.enabled
         raise TypeError, 'Argument name should be a string' unless name.is_a?(String)
         raise KeyError, 'Please pass the last parameter as "options" key' unless options.has_key?(:options)
     

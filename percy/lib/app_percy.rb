@@ -5,6 +5,7 @@ require_relative '../providers/provider_resolver'
 require_relative '../metadata/metadata_resolver'
 
 class AppPercy
+  attr_accessor :metadata, :provider
   def initialize(driver)
     raise DriverNotSupported unless driver.is_a?(Appium::Core::Base::Driver)
 

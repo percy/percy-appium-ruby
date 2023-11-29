@@ -1,5 +1,6 @@
 require 'json'
 require 'pathname'
+require_relative '../common/common'
 
 DEVICE_INFO_FILE_PATH = File.join(File.dirname(__FILE__), '..', 'configs', 'devices.json')
 DEVICE_INFO = JSON.parse(File.read(DEVICE_INFO_FILE_PATH))
@@ -16,7 +17,11 @@ class Metadata
   end
 
   def capabilities
-    driver.capabilities
+    caps = driver.capabilities
+    unless caps.is_a?(Hash)
+      caps = caps.as_json
+    end
+    caps
   end
 
   def session_id
@@ -24,11 +29,16 @@ class Metadata
   end
 
   def os_name
-    capabilities.as_json['platformName']
+    capabilities["platformName"]
   end
 
   def os_version
-    os_version = capabilities.as_json['os_version'] || capabilities.as_json['platformVersion'] || ''
+    caps = capabilities
+    unless caps.is_a?(Hash)
+      caps = caps.as_json
+    end
+
+    os_version = caps['os_version'] || caps['platformVersion'] || ''
     os_version = @os_version || os_version
     begin
       os_version.to_f.to_i.to_s
@@ -42,7 +52,7 @@ class Metadata
   end
 
   def get_orientation(**kwargs)
-    orientation = kwargs[:orientation] || capabilities.as_json['orientation'] || 'PORTRAIT'
+    orientation = kwargs[:orientation] || capabilities['orientation'] || 'PORTRAIT'
     orientation = orientation.downcase
     orientation = orientation == 'auto' ? self._orientation : orientation
     orientation.upcase

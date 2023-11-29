@@ -2,8 +2,10 @@ require 'json'
 require 'tempfile'
 require 'pathname'
 require 'base64'
+require 'fileutils'
 require_relative '../lib/cli_wrapper'
 require_relative '../lib/tile'
+require_relative '../common/common'
 
 class GenericProvider
   attr_accessor :driver, :metadata, :debug_url
@@ -52,12 +54,12 @@ class GenericProvider
     orientation = metadata.get_orientation(**kwargs).downcase
 
     {
-      name: name,
-      os_name: os_name,
-      os_version: os_version,
-      width: width,
-      height: height,
-      orientation: orientation
+      "name" => name,
+      "os_name" => os_name,
+      "os_version" => os_version,
+      "width" => width,
+      "height" => height,
+      "orientation" => orientation
     }
   end
 
@@ -102,16 +104,16 @@ class GenericProvider
   end
 
   def get_region_object(selector, element)
-    scale_factor = metadata[:scale_factor]
-    location = element.location
-    size = element.size
+    scale_factor = metadata.scale_factor
+    location = hashed(element.location)
+    size = hashed(element.size)
     coordinates = {
-      top: location.y * scale_factor,
-      bottom: (location.y + size.height) * scale_factor,
-      left: location.x * scale_factor,
-      right: (location.x + size.width) * scale_factor
+      "top" => location["y"] * scale_factor,
+      "bottom" => (location["y"] + size["height"]) * scale_factor,
+      "left" => location["x"] * scale_factor,
+      "right" => (location["x"] + size["width"]) * scale_factor
     }
-    { selector: selector, coOrdinates: coordinates }
+    { "selector" => selector, "coOrdinates" => coordinates }
   end
 
   def get_regions_by_xpath(elements_array, xpaths)
@@ -119,9 +121,11 @@ class GenericProvider
       begin
         element = driver.find_element(Appium::Core::Base::SearchContext::FINDERS[:xpath], xpath)
         selector = "xpath: #{xpath}"
-        region = get_region_object(selector, element)
-        elements_array << region
-      rescue Appium::Core::Base::Error::NoSuchElementError => e
+        if element
+          region = get_region_object(selector, element)
+          elements_array << region
+        end
+      rescue Appium::Core::Error::NoSuchElementError => e
         log("Appium Element with xpath: #{xpath} not found. Ignoring this xpath.")
         log(e, on_debug: true)
       end
@@ -135,7 +139,7 @@ class GenericProvider
         selector = "id: #{id}"
         region = get_region_object(selector, element)
         elements_array << region
-      rescue Appium::Core::Base::Error::NoSuchElementError => e
+      rescue Appium::Core::Error::NoSuchElementError => e
         log("Appium Element with id: #{id} not found. Ignoring this id.")
         log(e, on_debug: true)
       end
@@ -149,7 +153,7 @@ class GenericProvider
         selector = "element: #{index} #{class_name}"
         region = get_region_object(selector, element)
         elements_array << region
-      rescue Appium::Core::Base::Error::NoSuchElementError => e
+      rescue Appium::Core::Error::NoSuchElementError => e
         log("Correct Element not passed at index #{index}")
         log(e, on_debug: true)
       end

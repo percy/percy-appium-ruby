@@ -4,7 +4,11 @@ require_relative 'ios_metadata'
 
 class MetadataResolver
   def self.resolve(driver)
-    platform_name = driver.capabilities.as_json['platformName'].downcase
+    capabilities = driver.capabilities
+    unless capabilities.is_a?(Hash)
+      capabilities = capabilities.as_json
+    end
+    platform_name = capabilities.fetch("platformName", "").downcase
     case platform_name
     when 'android'
       AndroidMetadata.new(driver)

@@ -2,6 +2,7 @@ require_relative 'metadata'
 require_relative '../lib/cache'
 
 class IOSMetadata < Metadata
+  attr_reader :_window_size
   def initialize(driver)
     super(driver)
     @_viewport = {}
@@ -9,9 +10,10 @@ class IOSMetadata < Metadata
   end
 
   def device_screen_size
-    height = viewport['top'] + viewport['height']
-    width = viewport['width']
-    unless height && width
+    vp = viewport
+    height = vp.fetch('top', 0) + vp.fetch('height', 0)
+    width = vp.fetch('width', 0)
+    if  height == 0 && width == 0
       scale_factor = value_from_devices_info('scale_factor', device_name)
       height = get_window_size['height'] * scale_factor
       width = get_window_size['width'] * scale_factor
@@ -21,8 +23,9 @@ class IOSMetadata < Metadata
 
   def status_bar
     height = 0
-    if viewport['top']
-      height = viewport['top']
+    view_port = viewport
+    if view_port.fetch('top', 0) != 0
+      height = view_port['top']
     else
       scale_factor = value_from_devices_info('scale_factor', device_name)
       status_bar_height = value_from_devices_info('status_bar', device_name)
@@ -46,7 +49,7 @@ class IOSMetadata < Metadata
 
   def viewport
     @_viewport = Cache.get_cache(session_id, Cache::VIEWPORT)
-    if @_viewport.nil?
+    if @_viewport.nil? || (@_viewport.is_a?(Hash) && @_viewport.empty?)
       begin
         @_viewport = execute_script('mobile: viewportRect')
         Cache.set_cache(session_id, Cache::VIEWPORT, @_viewport)
@@ -61,7 +64,11 @@ class IOSMetadata < Metadata
 
   def device_name
     if @device_name.nil?
-      @device_name = capabilities.as_json['deviceName']
+      caps = capabilities
+      unless caps.is_a?(Hash)
+        caps = caps.as_json
+      end
+      @device_name = caps['deviceName']
     end
     @device_name
   end

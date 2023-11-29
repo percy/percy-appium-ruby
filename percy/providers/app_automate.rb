@@ -6,7 +6,12 @@ require_relative '../environment'
 
 class AppAutomate < GenericProvider
   def self.supports(remote_url)
-    remote_url.rindex(ENV['AA_DOMAIN'].nil? ? 'browserstack' : ENV['AA_DOMAIN']) > -1
+    r_index = remote_url.rindex(ENV['AA_DOMAIN'].nil? ? 'browserstack' : ENV['AA_DOMAIN'])
+    if r_index
+      r_index > -1
+    else
+      false
+    end
   end
 
   def screenshot(name, **kwargs)
@@ -118,8 +123,8 @@ class AppAutomate < GenericProvider
     end
   end
 
-  def execute_percy_screenshot(device_height, screenshotType, screen_lengths, scrollable_xpath=None, 
-                              scrollable_id=None, scale_factor = 1, top_scrollview_offset=0,
+  def execute_percy_screenshot(device_height, screenshotType, screen_lengths, scrollable_xpath=nil, 
+                              scrollable_id=nil, scale_factor=1, top_scrollview_offset=0,
                               bottom_scrollview_offset=0)
     project_id = ENV['PERCY_ENABLE_DEV'] == 'true' ? 'percy-dev' : 'percy-prod'
     request_body = {

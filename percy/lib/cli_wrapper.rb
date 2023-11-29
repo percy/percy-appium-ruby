@@ -48,14 +48,7 @@ class CLIWrapper
   end
 
   def post_screenshots(name, tag, tiles, external_debug_url=nil, ignored_elements_data=nil, considered_elements_data=nil)
-    body = {
-      'name' => name,
-      'tag' => tag,
-      'tiles' => tiles.map(&:to_h),
-      'ignored_elements_data' => ignored_elements_data,
-      'external_debug_url' => external_debug_url,
-      'considered_elements_data' => considered_elements_data
-    }
+    body = request_body(name, tag, tiles, external_debug_url, ignored_elements_data, considered_elements_data)
     body['client_info'] = Environment.get_client_info()
     body['environment_info'] = Environment.get_env_info()
 
@@ -124,4 +117,15 @@ class CLIWrapper
     data
   end
 
+  def request_body(name, tag, tiles, external_debug_url, ignored_elements_data, considered_elements_data)
+    tiles = tiles.map(&:to_h)
+    {
+      "name" => name,
+      "tag" => tag,
+      "tiles" => tiles,
+      "ignored_elements_data" => ignored_elements_data,
+      "external_debug_url" => external_debug_url,
+      "considered_elements_data" => considered_elements_data
+    }
+  end
 end

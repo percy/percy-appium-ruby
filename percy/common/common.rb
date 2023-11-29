@@ -9,3 +9,10 @@ def log(message, on_debug: nil)
     puts "#{LABEL} #{message}"
   end
 end
+
+def hashed(object)
+  unless object.is_a?(Hash)
+    return object.as_json
+  end
+  object
+end
