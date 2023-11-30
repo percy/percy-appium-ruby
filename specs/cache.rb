@@ -37,10 +37,17 @@ class TestCache < Minitest::Test
   end
 
   def test_cleanup_cache
+    previous_value = Cache::CACHE_TIMEOUT
+    Cache.send(:remove_const, :CACHE_TIMEOUT)
+    Cache.const_set(:CACHE_TIMEOUT, 60)
+    
     cache_timeout = Cache::CACHE_TIMEOUT
     sleep(cache_timeout + 1)
     assert_includes @cache.cache, @session_id
     Cache.cleanup_cache
     refute_includes @cache.cache, @session_id
+
+    Cache.send(:remove_const, :CACHE_TIMEOUT)
+    Cache.const_set(:CACHE_TIMEOUT, previous_value)
   end
 end
