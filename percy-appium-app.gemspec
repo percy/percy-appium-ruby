@@ -1,5 +1,5 @@
 # coding: utf-8
-percy = File.expand_path('../percy-appium-ruby', __FILE__)
+percy = File.expand_path('../percy', __FILE__)
 $LOAD_PATH.unshift(percy) unless $LOAD_PATH.include?(percy)
 require 'version'
 
