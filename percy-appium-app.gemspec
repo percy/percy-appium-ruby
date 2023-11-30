@@ -25,13 +25,13 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['percy']
 
-  spec.add_runtime_dependency 'appium_lib', '>= 12.0.0'
+  spec.add_runtime_dependency 'appium_lib', '~> 12.0'
 
-  spec.add_development_dependency 'bundler', '>= 2.4'
+  spec.add_development_dependency 'bundler', '~> 2.4'
   spec.add_development_dependency 'minitest', '~> 5.20'
   spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'percy-style', '~> 0.7.0'
-  spec.add_development_dependency 'webmock', '>= 3.18.1'
-  spec.add_development_dependency 'webrick', '>= 1.3.1'
+  spec.add_development_dependency 'webmock', '~> 3.18'
+  spec.add_development_dependency 'webrick', '~> 1.3'
 
 end
