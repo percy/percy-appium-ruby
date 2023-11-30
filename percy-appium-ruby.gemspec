@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'percy-appium-ruby'
+  spec.name          = 'percy-appium-app'
   spec.version       = Percy::VERSION
   spec.authors       = ['BroswerStack']
   spec.email         = ['support@browserstack.com']
