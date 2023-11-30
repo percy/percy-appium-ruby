@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 require 'webmock/minitest'
 require 'json'
@@ -11,12 +13,13 @@ end
 
 def mock_poa_screenshot(fail: false)
   stub_request(:post, 'http://localhost:5338/percy/automateScreenshot')
-    .to_return(body: '{"success": ' + (fail ? 'false, "error": "test"' : 'true') + '}', status: (fail ? 500 : 200))
+    .to_return(body: "{\"success\": #{fail ? 'false, "error": "test"' : 'true'}}", status: (fail ? 500 : 200))
 end
 
+# Test suite for the Percy::CLIWrapper class
 class TestCLIWrapper < Minitest::Test
   def setup
-    @cli_wrapper = CLIWrapper.new
+    @cli_wrapper = Percy::CLIWrapper.new
     @ignored_elements_data = {
       'ignore_elements_data' => {
         'selector' => 'xpath: some_xpath',
@@ -80,7 +83,7 @@ class TestCLIWrapper < Minitest::Test
     mock_screenshot
 
     assert_equal(
-      @cli_wrapper.post_screenshots('some-name', {}, [Tile.new(10, 10, 20, 20, filepath: 'some-file-path')],
+      @cli_wrapper.post_screenshots('some-name', {}, [Percy::Tile.new(10, 10, 20, 20, filepath: 'some-file-path')],
                                     'some-debug-url'),
       { 'link' => 'snapshot-url-link', 'success' => true }
     )
@@ -90,14 +93,14 @@ class TestCLIWrapper < Minitest::Test
     mock_screenshot
 
     assert_equal(
-      @cli_wrapper.post_screenshots('some-name', {}, [Tile.new(10, 10, 20, 20, filepath: 'some-file-path')],
+      @cli_wrapper.post_screenshots('some-name', {}, [Percy::Tile.new(10, 10, 20, 20, filepath: 'some-file-path')],
                                     'some-debug-url', @ignored_elements_data),
       { 'link' => 'snapshot-url-link', 'success' => true }
     )
   end
 
   def test_request_body
-    tile = Tile.new(10, 10, 20, 20, filepath: 'some-file-path')
+    tile = Percy::Tile.new(10, 10, 20, 20, filepath: 'some-file-path')
     tag = { 'name' => 'Tag' }
     name = 'some-name'
     debug_url = 'debug-url'
@@ -112,7 +115,7 @@ class TestCLIWrapper < Minitest::Test
   end
 
   def test_request_body_when_optional_values_are_null
-    tile = Tile.new(10, 10, 20, 20, filepath: 'some-file-path')
+    tile = Percy::Tile.new(10, 10, 20, 20, filepath: 'some-file-path')
     tag = { 'name' => 'Tag' }
     name = 'some-name'
     debug_url = nil

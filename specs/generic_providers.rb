@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 require 'securerandom'
 require 'appium_lib'
@@ -6,6 +8,7 @@ require_relative '../percy/metadata/android_metadata'
 require_relative '../percy/lib/region'
 require_relative 'mocks/mock_methods'
 
+# Test suite for the Percy::GenericProvider class
 class TestGenericProvider < Minitest::Test
   include Appium
   COMPARISON_RESPONSE = { 'comparison' => { 'id' => 123, 'url' => 'https://percy-build-url' } }.freeze
@@ -25,8 +28,8 @@ class TestGenericProvider < Minitest::Test
     png_bytes = 'some random bytes'
     @mock_webdriver.expect(:screenshot_as, png_bytes, [:png])
 
-    @android_metadata = AndroidMetadata.new(@mock_webdriver)
-    @generic_provider = GenericProvider.new(@mock_webdriver, @android_metadata)
+    @android_metadata = Percy::AndroidMetadata.new(@mock_webdriver)
+    @generic_provider = Percy::GenericProvider.new(@mock_webdriver, @android_metadata)
   end
 
   def teardown
@@ -160,13 +163,13 @@ class TestGenericProvider < Minitest::Test
       @mock_webdriver.expect(:capabilities, get_android_capabilities)
     end
 
-    Metadata.class_eval do
+    Percy::Metadata.class_eval do
       define_method(:session_id) do
         mock.session_id
       end
     end
 
-    AndroidMetadata.class_eval do
+    Percy::AndroidMetadata.class_eval do
       6.times do
         define_method(:get_system_bars) do
           mock.get_system_bars
@@ -186,7 +189,7 @@ class TestGenericProvider < Minitest::Test
   end
 
   def test_supports
-    assert GenericProvider.supports('some-dummy-url')
+    assert Percy::GenericProvider.supports('some-dummy-url')
   end
 
   def test_non_app_automate
@@ -196,7 +199,7 @@ class TestGenericProvider < Minitest::Test
       mock.expect(:session_id, session_id)
     end
 
-    Metadata.class_eval do
+    Percy::Metadata.class_eval do
       4.times do
         define_method(:session_id) do
           mock.session_id
@@ -347,8 +350,8 @@ class TestGenericProvider < Minitest::Test
     @mock_webdriver.expect(:capabilities, get_android_capabilities)
     @mock_webdriver.expect(:capabilities, get_android_capabilities)
     @mock_webdriver.expect(:capabilities, get_android_capabilities)
-    valid_ignore_region = Region.new(100, 200, 200, 300)
-    invalid_ignore_region = Region.new(100, 2390, 200, 300)
+    valid_ignore_region = Percy::Region.new(100, 200, 200, 300)
+    invalid_ignore_region = Percy::Region.new(100, 2390, 200, 300)
 
     elements_array = []
     custom_locations = [valid_ignore_region, invalid_ignore_region]

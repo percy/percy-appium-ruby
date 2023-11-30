@@ -1,14 +1,17 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 require 'minitest/mock'
 require 'appium_lib'
 require_relative 'mocks/mock_methods'
 require_relative '../percy/metadata/android_metadata'
 
+# Test suite for the Percy::AndroidMetadata class
 class TestAndroidMetadata < Minitest::Test
   def setup
     @mock_webdriver = Minitest::Mock.new
     @mock_webdriver.expect(:capabilities, get_android_capabilities)
-    @android_metadata = AndroidMetadata.new(@mock_webdriver)
+    @android_metadata = Percy::AndroidMetadata.new(@mock_webdriver)
   end
 
   def test_android_execute_script
