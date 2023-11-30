@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 require 'appium_lib'
 require_relative '../exceptions/exceptions'
 require_relative '../metadata/driver_metadata'
 require_relative '../lib/cli_wrapper'
 
-IGNORE_ELEMENT_KEY = 'ignore_region_appium_elements'.freeze
-IGNORE_ELEMENT_ALT_KEY = 'ignoreRegionAppiumElements'.freeze
-CONSIDER_ELEMENT_KEY = 'consider_region_appium_elements'.freeze
-CONSIDER_ELEMENT_ALT_KEY = 'considerRegionAppiumElements'.freeze
+IGNORE_ELEMENT_KEY = 'ignore_region_appium_elements'
+IGNORE_ELEMENT_ALT_KEY = 'ignoreRegionAppiumElements'
+CONSIDER_ELEMENT_KEY = 'consider_region_appium_elements'
+CONSIDER_ELEMENT_ALT_KEY = 'considerRegionAppiumElements'
 
 class PercyOnAutomate
   def initialize(driver)
@@ -21,7 +23,7 @@ class PercyOnAutomate
   def screenshot(name, **options)
     return nil unless @percy_options.enabled
     raise TypeError, 'Argument name should be a string' unless name.is_a?(String)
-    raise KeyError, 'Please pass the last parameter as "options" key' unless options.has_key?(:options)
+    raise KeyError, 'Please pass the last parameter as "options" key' unless options.key?(:options)
 
     metadata = DriverMetadata.new(@driver)
     options = options[:options] || {}
@@ -30,8 +32,8 @@ class PercyOnAutomate
       options[IGNORE_ELEMENT_KEY] = options.delete(IGNORE_ELEMENT_ALT_KEY) if options.key?(IGNORE_ELEMENT_ALT_KEY)
       options[CONSIDER_ELEMENT_KEY] = options.delete(CONSIDER_ELEMENT_ALT_KEY) if options.key?(CONSIDER_ELEMENT_ALT_KEY)
 
-      ignore_region_elements = options.fetch(IGNORE_ELEMENT_KEY, []).map { |element| element.id }
-      consider_region_elements = options.fetch(CONSIDER_ELEMENT_KEY, []).map { |element| element.id }
+      ignore_region_elements = options.fetch(IGNORE_ELEMENT_KEY, []).map(&:id)
+      consider_region_elements = options.fetch(CONSIDER_ELEMENT_KEY, []).map(&:id)
       options.delete(IGNORE_ELEMENT_KEY)
       options.delete(CONSIDER_ELEMENT_KEY)
 

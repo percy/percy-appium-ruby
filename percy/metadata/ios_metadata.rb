@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'metadata'
 require_relative '../lib/cache'
 
@@ -14,7 +16,7 @@ class IOSMetadata < Metadata
     vp = viewport
     height = vp.fetch('top', 0) + vp.fetch('height', 0)
     width = vp.fetch('width', 0)
-    if  height == 0 && width == 0
+    if  height.zero? && width.zero?
       scale_factor = value_from_devices_info('scale_factor', device_name)
       height = get_window_size['height'] * scale_factor
       width = get_window_size['width'] * scale_factor
@@ -74,7 +76,7 @@ class IOSMetadata < Metadata
 
   def scale_factor
     scale_factor = value_from_devices_info('scale_factor', device_name)
-    return viewport['width'] / get_window_size['width'] if scale_factor == 0
+    return viewport['width'] / get_window_size['width'] if scale_factor.zero?
 
     scale_factor
   end

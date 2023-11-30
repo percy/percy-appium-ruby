@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'net/http'
 require 'json'
 require 'uri'
@@ -8,7 +10,7 @@ require_relative '../version'
 require_relative '../environment'
 
 CLIENT_INFO = "percy-appium-app/#{SDK_VERSION}"
-ENV_INFO = ["appium/#{Appium::VERSION}", "ruby/#{RUBY_VERSION}"]
+ENV_INFO = ["appium/#{Appium::VERSION}", "ruby/#{RUBY_VERSION}"].freeze
 
 PERCY_CLI_API = ENV['PERCY_CLI_API'] || 'http://localhost:5338'
 

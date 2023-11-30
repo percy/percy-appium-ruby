@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 class PercyOptions
   IGNORE_ERRORS = 'ignoreErrors'
   ENABLED = 'enabled'
-  PERCY_OPTIONS = ['percy:options', 'percyOptions']
+  PERCY_OPTIONS = ['percy:options', 'percyOptions'].freeze
 
   def initialize(capabilities)
     @capabilities = capabilities
