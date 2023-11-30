@@ -1,0 +1,15 @@
+source 'https://rubygems.org'
+
+gem 'appium_console'
+gem 'appium_lib'
+gem 'base64'
+gem 'dotenv'
+gem 'json'
+gem 'minitest'
+gem 'net'
+gem 'rubocop', require: false
+gem 'selenium-webdriver'
+gem 'tempfile'
+gem 'uri'
+gem 'webmock', '~> 3.18', '>= 3.18.1'
+gem 'webrick', '~> 1.3', '>= 1.3.1'
