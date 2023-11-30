@@ -1,5 +1,5 @@
 # coding: utf-8
-percy = File.expand_path('../percy', __FILE__)
+percy = File.expand_path('../percy-appium-ruby', __FILE__)
 $LOAD_PATH.unshift(percy) unless $LOAD_PATH.include?(percy)
 require 'version'
 
@@ -29,6 +29,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'bundler', '>= 2.4'
   spec.add_development_dependency 'minitest', '~> 5.20'
+  spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'percy-style', '~> 0.7.0'
   spec.add_development_dependency 'webmock', '>= 3.18.1'
   spec.add_development_dependency 'webrick', '>= 1.3.1'
