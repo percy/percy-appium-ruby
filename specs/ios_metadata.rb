@@ -1,15 +1,18 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 require 'minitest/mock'
 require_relative 'mocks/mock_methods'
 require_relative '../percy/metadata/ios_metadata'
 
+# Test suite for the Percy::IOSMetadata class
 class TestIOSMetadata < Minitest::Test
   def setup
     @mock_webdriver = Minitest::Mock.new
     @bridge = Minitest::Mock.new
     @http = Minitest::Mock.new
     @server_url = Minitest::Mock.new
-    @ios_metadata = IOSMetadata.new(@mock_webdriver)
+    @ios_metadata = Percy::IOSMetadata.new(@mock_webdriver)
   end
 
   def test_ios_execute_script

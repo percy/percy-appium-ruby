@@ -1,10 +1,13 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 require_relative '../percy/metadata/metadata'
 
+# Test suite for the Percy::Metadata class
 class TestMetadata < Minitest::Test
   def setup
     @mock_webdriver = Minitest::Mock.new
-    @metadata = Metadata.new(@mock_webdriver)
+    @metadata = Percy::Metadata.new(@mock_webdriver)
   end
 
   def test_metadata_properties

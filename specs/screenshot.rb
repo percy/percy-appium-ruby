@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 require 'json'
 require 'webmock/minitest'
@@ -8,6 +10,7 @@ require_relative '../percy/screenshot'
 require_relative '../percy/lib/app_percy'
 require_relative 'mocks/mock_methods'
 
+# Test suite for the percy_screenshot
 class MockServerRequestHandler < WEBrick::HTTPServlet::AbstractServlet
   def do_GET(_request, response)
     response.status = 200
@@ -21,7 +24,7 @@ mock_server.mount('/', MockServerRequestHandler)
 mock_server_thread = Thread.new { mock_server.start }
 
 # Mock helpers
-def mock_healthcheck(fail: false, fail_how: 'error', type: 'AppPercy')
+def mock_healthcheck(fail: false, fail_how: 'error', type: 'Percy::AppPercy')
   health_body = JSON.dump(success: true, build: { 'id' => '123', 'url' => 'dummy_url' }, type: type)
   health_headers = { 'X-Percy-Core-Version' => '1.27.0-beta.1' }
   health_status = 200
@@ -53,12 +56,12 @@ end
 
 def mock_screenshot(fail: false)
   stub_request(:post, 'http://localhost:5338/percy/comparison')
-    .to_return(body: '{"success": ' + (fail ? 'false, "error": "test"' : 'true') + '}', status: (fail ? 500 : 200))
+    .to_return(body: "{\"success\": #{fail ? 'false, "error": "test"' : 'true'}}", status: (fail ? 500 : 200))
 end
 
 def mock_poa_screenshot(fail: false)
   stub_request(:post, 'http://localhost:5338/percy/automateScreenshot')
-    .to_return(body: '{"success": ' + (fail ? 'false, "error": "test"' : 'true') + '}', status: (fail ? 500 : 200))
+    .to_return(body: "{\"success\": #{fail ? 'false, "error": "test"' : 'true'}}", status: (fail ? 500 : 200))
 end
 
 def mock_session_request
@@ -98,12 +101,12 @@ class TestPercyScreenshot < Minitest::Test
       @server_url.expect(:to_s, 'https://hub-cloud.browserstack.com/wd/hub')
     end
 
-    assert_raises(TypeError) { AppPercy.new(@mock_webdriver).screenshot(123) }
-    assert_raises(TypeError) { AppPercy.new(@mock_webdriver).screenshot('screenshot 1', device_name: 123) }
-    assert_raises(TypeError) { AppPercy.new(@mock_webdriver).screenshot('screenshot 1', full_screen: 123) }
-    assert_raises(TypeError) { AppPercy.new(@mock_webdriver).screenshot('screenshot 1', orientation: 123) }
-    assert_raises(TypeError) { AppPercy.new(@mock_webdriver).screenshot('screenshot 1', status_bar_height: 'height') }
-    assert_raises(TypeError) { AppPercy.new(@mock_webdriver).screenshot('screenshot 1', nav_bar_height: 'height') }
+    assert_raises(TypeError) { Percy::AppPercy.new(@mock_webdriver).screenshot(123) }
+    assert_raises(TypeError) { Percy::AppPercy.new(@mock_webdriver).screenshot('screenshot 1', device_name: 123) }
+    assert_raises(TypeError) { Percy::AppPercy.new(@mock_webdriver).screenshot('screenshot 1', full_screen: 123) }
+    assert_raises(TypeError) { Percy::AppPercy.new(@mock_webdriver).screenshot('screenshot 1', orientation: 123) }
+    assert_raises(TypeError) { Percy::AppPercy.new(@mock_webdriver).screenshot('screenshot 1', status_bar_height: 'height') }
+    assert_raises(TypeError) { Percy::AppPercy.new(@mock_webdriver).screenshot('screenshot 1', nav_bar_height: 'height') }
   end
 
   def test_throws_error_when_a_driver_is_not_provided
@@ -227,8 +230,12 @@ class TestPercyScreenshot < Minitest::Test
     end
 
     6.times do
-      driver.expect(:execute_script,
-                    '{"success":true,"result":"[{\"sha\":\"sha-something\",\"status_bar\":null,\"nav_bar\":null,\"header_height\":0,\"footer_height\":0,\"index\":0}]"}', [String])
+      driver.expect(
+        :execute_script,
+        '{"success":true,"result":"[{\"sha\":\"sha-something\",\"status_bar\":null'\
+        ',\"nav_bar\":null,\"header_height\":0,\"footer_height\":0,\"index\":0}]"}',
+        [String]
+      )
     end
 
     4.times do
@@ -281,8 +288,12 @@ class TestPercyScreenshot < Minitest::Test
     end
 
     5.times do
-      driver.expect(:execute_script,
-                    '{"success":true,"result":"[{\"sha\":\"sha-something\",\"status_bar\":null,\"nav_bar\":null,\"header_height\":0,\"footer_height\":0,\"index\":0}]"}', [String])
+      driver.expect(
+        :execute_script,
+        '{"success":true,"result":"[{\"sha\":\"sha-something\",\"status_bar\":null'\
+        ',\"nav_bar\":null,\"header_height\":0,\"footer_height\":0,\"index\":0}]"}',
+        [String]
+      )
     end
 
     4.times do

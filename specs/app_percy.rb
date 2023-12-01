@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 # require 'webmock/minitest'
 require_relative '../percy/lib/app_percy'
@@ -8,6 +10,7 @@ require_relative '../percy/providers/generic_provider'
 require_relative '../percy/lib/cli_wrapper'
 require_relative 'mocks/mock_methods'
 
+# Test suite for the Percy::AppPercy class
 class TestAppPercy < Minitest::Test
   COMPARISON_RESPONSE = { 'link' => 'https://snapshot_url', 'success' => true }.freeze
 
@@ -33,10 +36,10 @@ class TestAppPercy < Minitest::Test
 
     ENV['PERCY_DISABLE_REMOTE_UPLOADS'] = 'true'
 
-    app_percy = AppPercy.new(@mock_android_webdriver)
+    app_percy = Percy::AppPercy.new(@mock_android_webdriver)
 
-    assert_instance_of(AndroidMetadata, app_percy.metadata)
-    assert_instance_of(AppAutomate, app_percy.provider)
+    assert_instance_of(Percy::AndroidMetadata, app_percy.metadata)
+    assert_instance_of(Percy::AppAutomate, app_percy.provider)
   end
 
   def test_android_on_non_app_automate
@@ -52,9 +55,9 @@ class TestAppPercy < Minitest::Test
     5.times do
       @mock_android_webdriver.expect(:capabilities, get_android_capabilities)
     end
-    app_percy = AppPercy.new(@mock_android_webdriver)
-    assert_instance_of(AndroidMetadata, app_percy.metadata)
-    assert_instance_of(GenericProvider, app_percy.provider)
+    app_percy = Percy::AppPercy.new(@mock_android_webdriver)
+    assert_instance_of(Percy::AndroidMetadata, app_percy.metadata)
+    assert_instance_of(Percy::GenericProvider, app_percy.provider)
   end
 
   def test_ios_on_app_automate
@@ -63,9 +66,9 @@ class TestAppPercy < Minitest::Test
     5.times do
       @mock_ios_webdriver.expect(:capabilities, get_ios_capabilities)
     end
-    app_percy = AppPercy.new(@mock_ios_webdriver)
-    assert_instance_of(IOSMetadata, app_percy.metadata)
-    assert_instance_of(AppAutomate, app_percy.provider)
+    app_percy = Percy::AppPercy.new(@mock_ios_webdriver)
+    assert_instance_of(Percy::IOSMetadata, app_percy.metadata)
+    assert_instance_of(Percy::AppAutomate, app_percy.provider)
   end
 
   def test_ios_on_non_app_automate
@@ -75,22 +78,20 @@ class TestAppPercy < Minitest::Test
       @bridge.expect(:instance_variable_get, @http, [:@http])
       @server_url.expect(:to_s, 'some-remote-url')
     end
-    1.times do
-      @mock_ios_webdriver.expect(:is_a?, true, [Appium::Core::Base::Driver])
-    end
+    @mock_ios_webdriver.expect(:is_a?, true, [Appium::Core::Base::Driver])
     3.times do
       @mock_ios_webdriver.expect(:capabilities, get_ios_capabilities)
     end
-    app_percy = AppPercy.new(@mock_ios_webdriver)
-    assert_instance_of(IOSMetadata, app_percy.metadata)
-    assert_instance_of(GenericProvider, app_percy.provider)
+    app_percy = Percy::AppPercy.new(@mock_ios_webdriver)
+    assert_instance_of(Percy::IOSMetadata, app_percy.metadata)
+    assert_instance_of(Percy::GenericProvider, app_percy.provider)
   end
 
   def test_screenshot_with_percy_options_disabled
     disable_percy_options(@mock_android_webdriver, num = 5)
     make_mock_driver_appium(@mock_android_webdriver)
     mock_driver_remote_url(@mock_android_webdriver, 'some-other-url', num = 2)
-    app_percy = AppPercy.new(@mock_android_webdriver)
+    app_percy = Percy::AppPercy.new(@mock_android_webdriver)
     assert_nil app_percy.screenshot('screenshot 1')
   end
 
@@ -98,7 +99,7 @@ class TestAppPercy < Minitest::Test
     disable_percy_options(@mock_android_webdriver, num = 5)
     make_mock_driver_appium(@mock_android_webdriver)
     mock_driver_remote_url(@mock_android_webdriver, 'some-other-url', num = 2)
-    app_percy = AppPercy.new(@mock_android_webdriver)
+    app_percy = Percy::AppPercy.new(@mock_android_webdriver)
     assert_nil app_percy.screenshot('screenshot 1')
   end
 
@@ -109,7 +110,7 @@ class TestAppPercy < Minitest::Test
                                    })
 
     assert_raises(Exception) do
-      AppPercy.screenshot(@mock_android_webdriver, 'screenshot')
+      Percy::AppPercy.screenshot(@mock_android_webdriver, 'screenshot')
     end
   end
 
@@ -122,16 +123,16 @@ class TestAppPercy < Minitest::Test
       @mock_android_webdriver.expect(:capabilities, caps)
     end
 
-    GenericProvider.stub(:supports, false) do
+    Percy::GenericProvider.stub(:supports, false) do
       assert_raises(UnknownProvider) do
-        _provider = AppPercy.new(@mock_android_webdriver).provider
+        _provider = Percy::AppPercy.new(@mock_android_webdriver).provider
       end
     end
   end
 
   def test_invalid_driver
     assert_raises(DriverNotSupported) do
-      AppPercy.new(Object.new)
+      Percy::AppPercy.new(Object.new)
     end
   end
 
@@ -166,7 +167,7 @@ class TestAppPercy < Minitest::Test
                           })
 
     assert_raises(Exception) do
-      AppPercy.screenshot(mock_webdriver, 'screenshot')
+      Percy::AppPercy.screenshot(mock_webdriver, 'screenshot')
     end
   end
 end

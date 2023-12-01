@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 require_relative '../percy/lib/tile'
 
+# Test suite for the Percy::Tile class.
 class TileTest < Minitest::Test
   def setup
-    @tile = Tile.new(20, 120, 150, 0, filepath: 'some-file-path', sha: 'some-sha')
+    @tile = Percy::Tile.new(20, 120, 150, 0, filepath: 'some-file-path', sha: 'some-sha')
     @hash_tile = @tile.to_h
   end
 

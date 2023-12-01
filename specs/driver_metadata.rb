@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 require 'minitest/mock'
 require 'appium_lib'
 
 require_relative '../percy/metadata/driver_metadata'
 
+# Test suite for the Percy::DriverMetadata class
 class TestDriverMetadata < Minitest::Test
   def setup
     @mock_webdriver = Minitest::Mock.new
@@ -11,7 +14,7 @@ class TestDriverMetadata < Minitest::Test
     @bridge = Minitest::Mock.new
     @server_url = Minitest::Mock.new
 
-    @metadata = DriverMetadata.new(@mock_webdriver)
+    @metadata = Percy::DriverMetadata.new(@mock_webdriver)
   end
 
   def test_session_id
