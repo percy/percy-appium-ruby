@@ -50,7 +50,8 @@ class TestAppAutomate < Minitest::Test
   def test_app_automate_execute_percy_screenshot_end
     @mock_webdriver.expect(:execute_script, '{}', [String])
     assert_equal '{}',
-                 @app_automate.execute_percy_screenshot_end('Screenshot 1', COMPARISON_RESPONSE['link'], 'success')
+                 @app_automate.execute_percy_screenshot_end('Screenshot 1', COMPARISON_RESPONSE['link'], 'success',
+                                                            false)
     @mock_webdriver.verify
   end
 
@@ -62,7 +63,7 @@ class TestAppAutomate < Minitest::Test
 
   def test_execute_percy_screenshot_end_throws_error
     @mock_webdriver.expect(:execute_script, proc { raise 'SomeException' }, [String])
-    @app_automate.execute_percy_screenshot_end('Screenshot 1', 'snapshot-url', 'success')
+    @app_automate.execute_percy_screenshot_end('Screenshot 1', 'snapshot-url', 'success', false)
     @mock_webdriver.verify
   end
 

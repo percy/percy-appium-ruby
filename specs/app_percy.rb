@@ -88,17 +88,17 @@ class TestAppPercy < Minitest::Test
   end
 
   def test_screenshot_with_percy_options_disabled
-    disable_percy_options(@mock_android_webdriver, num = 5)
+    disable_percy_options(@mock_android_webdriver, 5)
     make_mock_driver_appium(@mock_android_webdriver)
-    mock_driver_remote_url(@mock_android_webdriver, 'some-other-url', num = 2)
+    mock_driver_remote_url(@mock_android_webdriver, 'some-other-url', 2)
     app_percy = Percy::AppPercy.new(@mock_android_webdriver)
     assert_nil app_percy.screenshot('screenshot 1')
   end
 
   def test_screenshot_with_percyoptions_disabled
-    disable_percy_options(@mock_android_webdriver, num = 5)
+    disable_percy_options(@mock_android_webdriver, 5)
     make_mock_driver_appium(@mock_android_webdriver)
-    mock_driver_remote_url(@mock_android_webdriver, 'some-other-url', num = 2)
+    mock_driver_remote_url(@mock_android_webdriver, 'some-other-url', 2)
     app_percy = Percy::AppPercy.new(@mock_android_webdriver)
     assert_nil app_percy.screenshot('screenshot 1')
   end

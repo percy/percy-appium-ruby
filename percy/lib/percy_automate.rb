@@ -31,7 +31,10 @@ module Percy
 
       begin
         options[IGNORE_ELEMENT_KEY] = options.delete(IGNORE_ELEMENT_ALT_KEY) if options.key?(IGNORE_ELEMENT_ALT_KEY)
-        options[CONSIDER_ELEMENT_KEY] = options.delete(CONSIDER_ELEMENT_ALT_KEY) if options.key?(CONSIDER_ELEMENT_ALT_KEY)
+        if options.key?(CONSIDER_ELEMENT_ALT_KEY)
+          options[CONSIDER_ELEMENT_KEY] =
+            options.delete(CONSIDER_ELEMENT_ALT_KEY)
+        end
 
         ignore_region_elements = options.fetch(IGNORE_ELEMENT_KEY, []).map(&:id)
         consider_region_elements = options.fetch(CONSIDER_ELEMENT_KEY, []).map(&:id)

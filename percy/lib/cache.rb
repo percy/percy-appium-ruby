@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Percy
   class Cache
     attr_reader :cache

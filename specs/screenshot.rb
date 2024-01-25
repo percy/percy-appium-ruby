@@ -21,7 +21,7 @@ end
 
 mock_server = WEBrick::HTTPServer.new(Port: 8000)
 mock_server.mount('/', MockServerRequestHandler)
-mock_server_thread = Thread.new { mock_server.start }
+Thread.new { mock_server.start }
 
 # Mock helpers
 def mock_healthcheck(fail: false, fail_how: 'error', type: 'Percy::AppPercy')
@@ -105,8 +105,12 @@ class TestPercyScreenshot < Minitest::Test
     assert_raises(TypeError) { Percy::AppPercy.new(@mock_webdriver).screenshot('screenshot 1', device_name: 123) }
     assert_raises(TypeError) { Percy::AppPercy.new(@mock_webdriver).screenshot('screenshot 1', full_screen: 123) }
     assert_raises(TypeError) { Percy::AppPercy.new(@mock_webdriver).screenshot('screenshot 1', orientation: 123) }
-    assert_raises(TypeError) { Percy::AppPercy.new(@mock_webdriver).screenshot('screenshot 1', status_bar_height: 'height') }
-    assert_raises(TypeError) { Percy::AppPercy.new(@mock_webdriver).screenshot('screenshot 1', nav_bar_height: 'height') }
+    assert_raises(TypeError) do
+      Percy::AppPercy.new(@mock_webdriver).screenshot('screenshot 1', status_bar_height: 'height')
+    end
+    assert_raises(TypeError) do
+      Percy::AppPercy.new(@mock_webdriver).screenshot('screenshot 1', nav_bar_height: 'height')
+    end
   end
 
   def test_throws_error_when_a_driver_is_not_provided

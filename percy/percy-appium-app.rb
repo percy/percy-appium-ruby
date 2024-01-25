@@ -12,7 +12,8 @@ def percy_screenshot(driver, name, **kwargs)
   app_percy = nil
   provider_class = Percy::Environment.session_type == 'automate' ? Percy::PercyOnAutomate : Percy::AppPercy
   app_percy = provider_class.new(driver)
-  app_percy.screenshot(name, **kwargs)
+  response = app_percy.screenshot(name, **kwargs)
+  response.fetch('data', nil)
 rescue StandardError => e
   Percy::CLIWrapper.post_failed_event(e.to_s)
   log("Could not take screenshot \"#{name}\"")
