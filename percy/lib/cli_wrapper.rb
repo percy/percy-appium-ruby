@@ -49,7 +49,7 @@ module Percy
     end
 
     def post_screenshots(name, tag, tiles, external_debug_url = nil, ignored_elements_data = nil,
-                         considered_elements_data = nil, sync = false)
+                         considered_elements_data = nil, sync = nil)
       body = request_body(name, tag, tiles, external_debug_url, ignored_elements_data, considered_elements_data, sync)
       body['client_info'] = Percy::Environment.get_client_info
       body['environment_info'] = Percy::Environment.get_env_info

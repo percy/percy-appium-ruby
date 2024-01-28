@@ -15,7 +15,8 @@ class TestGenericProvider < Minitest::Test
 
   def setup
     @existing_dir = 'existing-dir'
-    Dir.mkdir(@existing_dir)
+    FileUtils.remove_entry_secure(@existing_dir) rescue nil
+    Dir.mkdir(@existing_dir) rescue nil
 
     @mock_webdriver = Minitest::Mock.new
     @mock_webdriver.expect(:capabilities, get_android_capabilities)
@@ -33,7 +34,7 @@ class TestGenericProvider < Minitest::Test
   end
 
   def teardown
-    FileUtils.remove_entry_secure(@existing_dir)
+    FileUtils.remove_entry_secure(@existing_dir) rescue nil
   end
 
   def test_get_dir_without_env_variable
@@ -103,9 +104,6 @@ class TestGenericProvider < Minitest::Test
 
   def test_get_tiles
     session_id = 'session_id_123'
-    10.times do
-      @mock_webdriver.expect(:session_id, session_id)
-    end
     10.times do
       @mock_webdriver.expect(:get_system_bars, {
                                'statusBar' => { 'height' => 10, 'width' => 20 },

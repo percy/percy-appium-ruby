@@ -42,7 +42,7 @@ module Percy
           custom_locations: kwargs.fetch(:custom_consider_regions, [])
         )
       }
-      sync = kwargs.fetch(:sync, false)
+      sync = kwargs.fetch(:sync, nil)
 
       _post_screenshots(name, tag, tiles, get_debug_url, ignore_regions, consider_regions, sync)
     end

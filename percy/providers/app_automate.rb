@@ -19,7 +19,7 @@ module Percy
 
     def screenshot(name, **kwargs)
       session_details = execute_percy_screenshot_begin(name)
-      sync = kwargs.fetch(:sync, false)
+      sync = kwargs.fetch(:sync, nil)
 
       if session_details
         metadata.device_name = session_details['deviceName']
