@@ -57,7 +57,6 @@ module Percy
         log("Could not take Screenshot '#{name}'")
         log(e.message, on_debug: true)
       end
-      nil
     end
   end
 end
