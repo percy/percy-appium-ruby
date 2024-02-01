@@ -30,9 +30,7 @@ module Percy
         response = super(name, **kwargs)
         percy_screenshot_url = response.fetch('link', '')
         execute_percy_screenshot_end(name, percy_screenshot_url, 'success', kwargs.fetch('sync', nil))
-
-        body = JSON.parse(response.body)
-        body['data']
+        response['data']
       rescue StandardError => e
         execute_percy_screenshot_end(name, percy_screenshot_url, 'failure', kwargs.fetch('sync', nil), e.message)
         raise e

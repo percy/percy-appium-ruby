@@ -52,8 +52,7 @@ module Percy
           options.merge(additional_options)
         )
 
-        body = JSON.parse(response.body)
-        body['data']
+        response['data']
       rescue StandardError => e
         log("Could not take Screenshot '#{name}'")
         log(e.message, on_debug: true)
