@@ -51,7 +51,9 @@ module Percy
           metadata.session_capabilities,
           options.merge(additional_options)
         )
-        response.body.to_json['data']
+
+        body = JSON.parse(response.body)
+        body['data']
       rescue StandardError => e
         log("Could not take Screenshot '#{name}'")
         log(e.message, on_debug: true)
