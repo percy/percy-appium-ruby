@@ -52,18 +52,6 @@ def mock_healthcheck(fail: false, fail_how: 'error', type: 'Percy::AppPercy')
       }
     )
     .to_return(status: health_status, body: health_body, headers: health_headers)
-
-  stub_request(:post, "http://localhost:5338/percy/events").
-    with(
-      body: "{\"clientInfo\":\"percy-appium-app-ruby/0.0.1\",\"message\":\"unexpected token at '{\\\"success\\\": true \\\"data\\\": \\\"sync-data\\\"}'\",\"errorKind\":\"sdk\"}",
-      headers: {
-            'Accept'=>'*/*',
-            'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-            'Content-Type'=>'application/json',
-            'Host'=>'localhost:5338',
-            'User-Agent'=>'Ruby'
-      }).
-    to_return(status: 200, body: "", headers: {})
 end
 
 def mock_screenshot(fail: false, data: false)
