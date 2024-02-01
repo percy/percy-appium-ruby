@@ -43,7 +43,7 @@ module Percy
           'consider_region_elements' => consider_region_elements
         }
 
-        Percy::CLIWrapper.new.post_poa_screenshots(
+        response = Percy::CLIWrapper.new.post_poa_screenshots(
           name,
           metadata.session_id,
           metadata.command_executor_url,
@@ -51,6 +51,7 @@ module Percy
           metadata.session_capabilities,
           options.merge(additional_options)
         )
+        response.body.to_json['data']
       rescue StandardError => e
         log("Could not take Screenshot '#{name}'")
         log(e.message, on_debug: true)

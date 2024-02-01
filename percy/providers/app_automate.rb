@@ -29,9 +29,10 @@ module Percy
       begin
         response = super(name, **kwargs)
         percy_screenshot_url = response.fetch('link', '')
-        execute_percy_screenshot_end(name, percy_screenshot_url, 'success')
+        execute_percy_screenshot_end(name, percy_screenshot_url, 'success', kwargs.fetch('sync', nil))
+        response.body.to_json['data']
       rescue StandardError => e
-        execute_percy_screenshot_end(name, percy_screenshot_url, 'failure', e.message)
+        execute_percy_screenshot_end(name, percy_screenshot_url, 'failure', kwargs.fetch('sync', nil), e.message)
         raise e
       end
     end
@@ -104,14 +105,15 @@ module Percy
       end
     end
 
-    def execute_percy_screenshot_end(name, percy_screenshot_url, status, status_message = nil)
+    def execute_percy_screenshot_end(name, percy_screenshot_url, status, sync = nil, status_message = nil)
       request_body = {
         action: 'percyScreenshot',
         arguments: {
           state: 'end',
           percyScreenshotUrl: percy_screenshot_url,
           name: name,
-          status: status
+          status: status,
+          sync: sync
         }
       }
       request_body[:arguments][:statusMessage] = status_message if status_message
