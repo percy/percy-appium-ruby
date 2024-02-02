@@ -6,7 +6,7 @@ require 'webmock/minitest'
 require 'appium_lib'
 require 'webrick'
 
-require_relative '../percy/screenshot'
+require_relative '../percy/percy-appium-app'
 require_relative '../percy/lib/app_percy'
 require_relative 'mocks/mock_methods'
 
@@ -54,14 +54,14 @@ def mock_healthcheck(fail: false, fail_how: 'error', type: 'Percy::AppPercy')
     .to_return(status: health_status, body: health_body, headers: health_headers)
 end
 
-def mock_screenshot(fail: false)
+def mock_screenshot(fail: false, data: false)
   stub_request(:post, 'http://localhost:5338/percy/comparison')
-    .to_return(body: "{\"success\": #{fail ? 'false, "error": "test"' : 'true'}}", status: (fail ? 500 : 200))
+    .to_return(body: "{\"success\": #{fail ? 'false, "error": "test"' : 'true'} #{data ? ',"data": "sync-data"' : ""}}", status: (fail ? 500 : 200))
 end
 
-def mock_poa_screenshot(fail: false)
+def mock_poa_screenshot(fail: false, data: false)
   stub_request(:post, 'http://localhost:5338/percy/automateScreenshot')
-    .to_return(body: "{\"success\": #{fail ? 'false, "error": "test"' : 'true'}}", status: (fail ? 500 : 200))
+    .to_return(body: "{\"success\": #{fail ? 'false, "error": "test"' : 'true'} #{data ? ',"data": "sync-data"' : ""}}", status: (fail ? 500 : 200))
 end
 
 def mock_session_request
@@ -204,6 +204,37 @@ class TestPercyScreenshot < Minitest::Test
     assert_equal(['Consider_Dummy_id'], s2['options']['consider_region_elements'])
   end
 
+  def test_posts_screenshot_poa_with_sync
+    mock_healthcheck(type: 'automate')
+    mock_poa_screenshot(data: true)
+    mock_session_request
+
+    driver = Minitest::Mock.new
+    @bridge = Minitest::Mock.new
+    @http = Minitest::Mock.new
+    @server_url = Minitest::Mock.new
+
+    driver.expect(:is_a?, true, [Appium::Core::Base::Driver])
+    driver.expect(:desired_capabilities, { 'key' => 'value' })
+    driver.expect(:instance_variable_get, @bridge, [:@bridge])
+    @http.expect(:instance_variable_get, @server_url, [:@server_url])
+    @bridge.expect(:instance_variable_get, @http, [:@http])
+    @server_url.expect(:to_s, 'https://hub-cloud.browserstack.com/wd/hub')
+
+    10.times do
+      driver.expect(:session_id, 'Dummy_session_id')
+    end
+    2.times do
+      driver.expect(:capabilities, { 'key' => 'value' })
+    end
+    @mock_webdriver.expect(:capabilities, { 'key' => 'value' })
+
+    res = percy_screenshot(driver, 'Snapshot 1', options: { sync: true })
+
+    assert_equal('sync-data', res)
+    assert_equal('/percy/automateScreenshot', @requests.last.uri.path)
+  end
+
   def test_posts_multiple_screenshots_to_the_local_percy_server
     mock_healthcheck
     mock_screenshot
@@ -248,6 +279,53 @@ class TestPercyScreenshot < Minitest::Test
     percy_screenshot(driver, 'screenshot 1')
     percy_screenshot(driver, 'screenshot 2', full_screen: false)
 
+    assert_equal('/percy/comparison', @requests.last.uri.path)
+
+    body = JSON.parse(@requests[-1].body)
+    assert_match(%r{percy-appium-app/\d+}, body['client_info'])
+    assert_match(%r{appium/\d+}, body['environment_info'][0])
+    assert_match(%r{ruby/\d+\.\d+\.\d+}, body['environment_info'][1])
+  end
+
+  def test_post_screenshot_with_sync
+    mock_healthcheck
+    mock_screenshot(data: true)
+
+    driver = Minitest::Mock.new
+
+    driver.expect(:is_a?, true, [Appium::Core::Base::Driver])
+    driver.expect(:instance_variable_get, @bridge, [:@bridge])
+    @http.expect(:instance_variable_get, @server_url, [:@server_url])
+    @bridge.expect(:instance_variable_get, @http, [:@http])
+    @server_url.expect(:to_s, 'https://hub-cloud.browserstack.com/wd/hub')
+
+    5.times do
+      driver.expect(:session_id, 'Dummy_session_id')
+    end
+
+    13.times do
+      driver.expect(:capabilities, get_android_capabilities)
+    end
+
+    3.times do
+      driver.expect(
+        :execute_script,
+        '{"success":true,"result":"[{\"sha\":\"sha-something\",\"status_bar\":null'\
+        ',\"nav_bar\":null,\"header_height\":0,\"footer_height\":0,\"index\":0}]"}',
+        [String]
+      )
+    end
+
+    2.times do
+      driver.expect(:get_system_bars, {
+                      'statusBar' => { 'height' => 10, 'width' => 20 },
+                      'navigationBar' => { 'height' => 10, 'width' => 20 }
+                    })
+    end
+
+    res = percy_screenshot(driver, 'screenshot 2', sync: true)
+
+    assert_equal('sync-data', res)
     assert_equal('/percy/comparison', @requests.last.uri.path)
 
     body = JSON.parse(@requests[-1].body)

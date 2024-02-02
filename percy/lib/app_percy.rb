@@ -49,7 +49,6 @@ module Percy
       end
 
       @provider.screenshot(name, **kwargs)
-      nil
     end
 
     attr_reader :percy_options

@@ -93,6 +93,7 @@ $ percy app:exec -- [ruby test command]
     - `top_scrollview_offset`: (**optional**) - [Alpha] Offset from top of scrollview; int
     - `bottom_scrollview_offset` (**optional**) - [Alpha] Offset from bottom of scrollview; int
 - `full_screen` (**optional**) - Indicate whether app is full screen; boolean [ needs @percy/cli 1.20.2+ ];
+- `sync` (**optional**) - Waits for screenshot to be processed and gives the processed result of screenshot [needs @percy/cli v1.28.0-beta.0+]; boolean
 - `scrollable_xpath` (**optional**) - [Alpha] Scrollable element xpath for fullpage [ needs @percy/cli 1.20.2+ ]; string
 - `scrollable_id` (**optional**) - [Alpha] Scrollable element accessibility id for fullpage [ needs @percy/cli 1.20.2+ ]; string
 - `ignore_regions_xpaths` (**optional**) - Elements xpaths that user want to ignore in visual diff [ needs @percy/cli 1.23.0+ ]; list of string
@@ -139,6 +140,7 @@ percy_screenshot_flutter(driver, name, **kwargs)
 - `driver` (**required**) - A appium driver instance
 - `name` (**required**) - The screenshot name; must be unique to each screenshot
 - `options` (**optional**) - There are various options supported by percy_screenshot to server further functionality.
+    - `sync` - Boolean value by default it falls back to `false`, Gives the processed result around screenshot [From CLI v1.28.0-beta.0+].
     - `freeze_animated_image` - Boolean value by default it falls back to `false`, you can pass `true` and percy will freeze image based animations.
     - `freeze_image_by_selectors` -List of selectors. Images will be freezed which are passed using selectors. For this to work `freeze_animated_image` must be set to true.
     - `freeze_image_by_xpaths` - List of xpaths. Images will be freezed which are passed using xpaths. For this to work `freeze_animated_image` must be set to true.

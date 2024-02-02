@@ -49,13 +49,14 @@ module Percy
     end
 
     def post_screenshots(name, tag, tiles, external_debug_url = nil, ignored_elements_data = nil,
-                        considered_elements_data = nil)
-      body = request_body(name, tag, tiles, external_debug_url, ignored_elements_data, considered_elements_data)
+                        considered_elements_data = nil, sync = nil)
+      body = request_body(name, tag, tiles, external_debug_url, ignored_elements_data, considered_elements_data, sync)
       body['client_info'] = Percy::Environment.get_client_info
       body['environment_info'] = Percy::Environment.get_env_info
 
       uri = URI("#{PERCY_CLI_API}/percy/comparison")
       http = Net::HTTP.new(uri.host, uri.port)
+      http.read_timeout = 600 # seconds
       request = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
       request.body = body.to_json
 
@@ -104,7 +105,11 @@ module Percy
       body['environment_info'] = Percy::Environment.get_env_info
 
       uri = URI("#{PERCY_CLI_API}/percy/automateScreenshot")
-      response = Net::HTTP.post(uri, body.to_json, 'Content-Type' => 'application/json')
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.read_timeout = 600 # seconds
+      request = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
+      request.body = body.to_json
+      response = http.request(request)
 
       # Handle errors
       raise CLIException, "Error: #{response.message}" unless response.is_a?(Net::HTTPSuccess)
@@ -119,7 +124,7 @@ module Percy
       data
     end
 
-    def request_body(name, tag, tiles, external_debug_url, ignored_elements_data, considered_elements_data)
+    def request_body(name, tag, tiles, external_debug_url, ignored_elements_data, considered_elements_data, sync)
       tiles = tiles.map(&:to_h)
       {
         'name' => name,
@@ -127,7 +132,8 @@ module Percy
         'tiles' => tiles,
         'ignored_elements_data' => ignored_elements_data,
         'external_debug_url' => external_debug_url,
-        'considered_elements_data' => considered_elements_data
+        'considered_elements_data' => considered_elements_data,
+        'sync' => sync
       }
     end
   end

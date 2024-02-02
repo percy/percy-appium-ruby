@@ -42,8 +42,9 @@ module Percy
           custom_locations: kwargs.fetch(:custom_consider_regions, [])
         )
       }
+      sync = kwargs.fetch(:sync, nil)
 
-      _post_screenshots(name, tag, tiles, get_debug_url, ignore_regions, consider_regions)
+      _post_screenshots(name, tag, tiles, get_debug_url, ignore_regions, consider_regions, sync)
     end
 
     def _get_tag(**kwargs)
@@ -93,8 +94,8 @@ module Percy
       elements_array
     end
 
-    def _post_screenshots(name, tag, tiles, debug_url, ignored_regions, considered_regions)
-      Percy::CLIWrapper.new.post_screenshots(name, tag, tiles, debug_url, ignored_regions, considered_regions)
+    def _post_screenshots(name, tag, tiles, debug_url, ignored_regions, considered_regions, sync)
+      Percy::CLIWrapper.new.post_screenshots(name, tag, tiles, debug_url, ignored_regions, considered_regions, sync)
     end
 
     def _write_screenshot(png_bytes, directory)
