@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 
 gem 'appium_console'
-gem 'appium_lib'
+gem 'appium_lib', '>= 11.2.0'
 gem 'dotenv'
 gem 'minitest'
 gem 'rubocop', require: false

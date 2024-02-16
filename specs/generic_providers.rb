@@ -15,6 +15,7 @@ class TestGenericProvider < Minitest::Test
 
   def setup
     @existing_dir = 'existing-dir'
+    teardown
     Dir.mkdir(@existing_dir)
 
     @mock_webdriver = Minitest::Mock.new
@@ -33,7 +34,9 @@ class TestGenericProvider < Minitest::Test
   end
 
   def teardown
-    FileUtils.remove_entry_secure(@existing_dir)
+    if Dir.exist?(@existing_dir)
+      FileUtils.remove_dir(@existing_dir, force: true)
+    end
   end
 
   def test_get_dir_without_env_variable

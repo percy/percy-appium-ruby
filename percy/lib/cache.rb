@@ -50,5 +50,10 @@ module Percy
 
       session_ids.each { |session_id| @@cache.delete(session_id) }
     end
+
+    # Added only for tests
+    def self.force_cleanup_cache
+      @@cache = {}
+    end
   end
 end

@@ -45,7 +45,7 @@ module Percy
     def get_window_size
       @_window_size = Percy::Cache.get_cache(session_id, Percy::Cache::WINDOW_SIZE)
       unless @_window_size
-        @_window_size = driver.get_window_size
+        @_window_size = driver.window_size
         Percy::Cache.set_cache(session_id, Percy::Cache::WINDOW_SIZE, @_window_size)
       end
       @_window_size
