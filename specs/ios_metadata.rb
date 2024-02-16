@@ -37,7 +37,7 @@ class TestIOSMetadata < Minitest::Test
     height = 100
     width = 100
     window_size = { 'height' => height, 'width' => width }
-    @mock_webdriver.expect(:get_window_size, window_size)
+    @mock_webdriver.expect(:window_size, window_size)
     session_id = 'session_id_123'
     @mock_webdriver.expect(:session_id, session_id)
     @mock_webdriver.expect(:session_id, session_id)
@@ -48,12 +48,13 @@ class TestIOSMetadata < Minitest::Test
   end
 
   def test_device_screen_size
+    Percy::Cache.force_cleanup_cache
     session_id = 'session_id_123'
     5.times do
       @mock_webdriver.expect(:session_id, session_id)
     end
     @mock_webdriver.expect(:capabilities, { 'deviceName' => 'iPhone 6' })
-    @mock_webdriver.expect(:get_window_size, { 'height' => 100, 'width' => 100 })
+    @mock_webdriver.expect(:window_size, { 'height' => 100, 'width' => 100 })
     device_screen_size = @ios_metadata.device_screen_size
     assert_equal({ 'height' => 200, 'width' => 200 }, device_screen_size)
   end
@@ -80,7 +81,7 @@ class TestIOSMetadata < Minitest::Test
       @mock_webdriver.expect(:session_id, session_id)
     end
     @mock_webdriver.expect(:capabilities, { 'deviceName' => 'iPhone 14' })
-    @mock_webdriver.expect(:get_window_size, window_size)
+    @mock_webdriver.expect(:window_size, window_size)
     @mock_webdriver.expect(:execute_script, { 'height' => 100, 'width' => 200 }, ['mobile: viewportRect'])
 
     assert_equal(2, @ios_metadata.scale_factor)
