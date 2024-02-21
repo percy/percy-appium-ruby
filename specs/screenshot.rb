@@ -19,9 +19,6 @@ class MockServerRequestHandler < WEBrick::HTTPServlet::AbstractServlet
   end
 end
 
-LocationStruct = Struct.new(:x, :y)
-SizeStruct = Struct.new(:width, :height)
-
 mock_server = WEBrick::HTTPServer.new(Port: 8000)
 mock_server.mount('/', MockServerRequestHandler)
 mock_server_thread = Thread.new { mock_server.start }
@@ -343,8 +340,8 @@ class TestPercyScreenshot < Minitest::Test
 
     mock_element = Minitest::Mock.new
     2.times do
-      mock_element.expect(:location, LocationStruct.new(10, 20))
-      mock_element.expect(:size, SizeStruct.new(200, 400))
+      mock_element.expect(:location, Selenium::WebDriver::Point.new(10, 20))
+      mock_element.expect(:size, Selenium::WebDriver::Dimension.new(200, 400))
     end
 
     xpaths = ['//path/to/element']
