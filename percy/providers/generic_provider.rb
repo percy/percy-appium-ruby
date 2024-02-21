@@ -106,8 +106,8 @@ module Percy
 
     def get_region_object(selector, element)
       scale_factor = metadata.scale_factor
-      location = hashed(element.location)
-      size = hashed(element.size)
+      location = { 'x' => element.location.x, 'y' => element.location.y }
+      size = { 'height' => element.size.height, 'width' => element.size.width }
       coordinates = {
         'top' => location['y'] * scale_factor,
         'bottom' => (location['y'] + size['height']) * scale_factor,
