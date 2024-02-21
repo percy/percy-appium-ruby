@@ -133,7 +133,9 @@ module Percy
 
     def get_regions_by_ids(elements_array, ids)
       ids.each do |id|
-        element = driver.find_element(Appium::Core::Base::SearchContext::FINDERS[:accessibility_id], id)
+        # Appium::Core::Base::SearchContext::FINDERS[:xpath] returns `accessibility id`
+        # instead of `:accessibility_id`, causes error
+        element = driver.find_element(:accessibility_id, id)
         selector = "id: #{id}"
         region = get_region_object(selector, element)
         elements_array << region
