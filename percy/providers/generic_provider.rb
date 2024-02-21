@@ -106,8 +106,8 @@ module Percy
 
     def get_region_object(selector, element)
       scale_factor = metadata.scale_factor
-      location = hashed(element.location)
-      size = hashed(element.size)
+      location = { 'x' => element.location.x, 'y' => element.location.y }
+      size = { 'height' => element.size.height, 'width' => element.size.width }
       coordinates = {
         'top' => location['y'] * scale_factor,
         'bottom' => (location['y'] + size['height']) * scale_factor,
@@ -133,7 +133,9 @@ module Percy
 
     def get_regions_by_ids(elements_array, ids)
       ids.each do |id|
-        element = driver.find_element(Appium::Core::Base::SearchContext::FINDERS[:accessibility_id], id)
+        # Appium::Core::Base::SearchContext::FINDERS[:xpath] returns `accessibility id`
+        # instead of `:accessibility_id`, causes error
+        element = driver.find_element(:accessibility_id, id)
         selector = "id: #{id}"
         region = get_region_object(selector, element)
         elements_array << region

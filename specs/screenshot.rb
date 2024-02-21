@@ -339,8 +339,10 @@ class TestPercyScreenshot < Minitest::Test
     mock_screenshot
 
     mock_element = Minitest::Mock.new
-    mock_element.expect(:location, { 'x' => 10, 'y' => 20 })
-    mock_element.expect(:size, { 'width' => 200, 'height' => 400 })
+    2.times do
+      mock_element.expect(:location, Selenium::WebDriver::Point.new(10, 20))
+      mock_element.expect(:size, Selenium::WebDriver::Dimension.new(200, 400))
+    end
 
     xpaths = ['//path/to/element']
 

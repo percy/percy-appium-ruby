@@ -233,8 +233,10 @@ class TestGenericProvider < Minitest::Test
 
   def test_get_region_object
     mock_element = Minitest::Mock.new
-    mock_element.expect(:location, { 'x' => 10, 'y' => 20 })
-    mock_element.expect(:size, { 'width' => 100, 'height' => 200 })
+    2.times do
+      mock_element.expect(:location, Selenium::WebDriver::Point.new(10, 20))
+      mock_element.expect(:size, Selenium::WebDriver::Dimension.new(100, 200))
+    end
 
     result = @generic_provider.get_region_object('my-selector', mock_element)
     expected_result = {
@@ -248,8 +250,10 @@ class TestGenericProvider < Minitest::Test
 
   def test_get_regions_by_xpath
     mock_element = Minitest::Mock.new
-    mock_element.expect(:location, { 'x' => 10, 'y' => 20 })
-    mock_element.expect(:size, { 'width' => 100, 'height' => 200 })
+    2.times do
+      mock_element.expect(:location, Selenium::WebDriver::Point.new(10, 20))
+      mock_element.expect(:size, Selenium::WebDriver::Dimension.new(100, 200))
+    end
 
     @mock_webdriver.expect(:find_element, mock_element,
                            [Appium::Core::Base::SearchContext::FINDERS[:xpath], '//path/to/element'])
@@ -279,11 +283,12 @@ class TestGenericProvider < Minitest::Test
 
   def test_get_regions_by_ids
     mock_element = Minitest::Mock.new
-    mock_element.expect(:location, { 'x' => 10, 'y' => 20 })
-    mock_element.expect(:size, { 'width' => 100, 'height' => 200 })
+    2.times do
+      mock_element.expect(:location, Selenium::WebDriver::Point.new(10, 20))
+      mock_element.expect(:size, Selenium::WebDriver::Dimension.new(100, 200))
+    end
 
-    @mock_webdriver.expect(:find_element, mock_element,
-                           [Appium::Core::Base::SearchContext::FINDERS[:accessibility_id], 'some_id'])
+    @mock_webdriver.expect(:find_element, mock_element, [:accessibility_id, 'some_id'])
 
     elements_array = []
     ids = ['some_id']
@@ -299,8 +304,10 @@ class TestGenericProvider < Minitest::Test
 
   def test_get_regions_by_ids_with_non_existing_element
     mock_element = Minitest::Mock.new
-    mock_element.expect(:location, { 'x' => 10, 'y' => 20 })
-    mock_element.expect(:size, { 'width' => 100, 'height' => 200 })
+    2.times do
+      mock_element.expect(:location, Selenium::WebDriver::Point.new(10, 20))
+      mock_element.expect(:size, Selenium::WebDriver::Dimension.new(100, 200))
+    end
 
     @mock_webdriver.expect(:find_element, [Appium::Core::Base::SearchContext::FINDERS[:accessibility_id], 'id1']) do
       raise Appium::Core::Error::NoSuchElementError, 'Test error'
@@ -315,8 +322,10 @@ class TestGenericProvider < Minitest::Test
 
   def test_get_regions_by_elements
     mock_element = Minitest::Mock.new
-    mock_element.expect(:location, { 'x' => 10, 'y' => 20 })
-    mock_element.expect(:size, { 'width' => 100, 'height' => 200 })
+    2.times do
+      mock_element.expect(:location, Selenium::WebDriver::Point.new(10, 20))
+      mock_element.expect(:size, Selenium::WebDriver::Dimension.new(100, 200))
+    end
     mock_element.expect(:attribute, 'textView', ['class'])
 
     elements_array = []

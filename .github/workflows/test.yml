@@ -37,4 +37,4 @@ jobs:
           key: v1/${{ runner.os }}/ruby-${{ matrix.ruby }}/${{ hashFiles('**/Gemfile.lock') }}
           restore-keys: v1/${{ runner.os }}/ruby-${{ matrix.ruby }}/
       - run: bundle install
-      - run: for file in specs/*.rb; do ruby $file; done
+      - run: for file in specs/*.rb; do echo $file; bundle exec ruby $file; done
