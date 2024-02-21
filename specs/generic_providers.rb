@@ -290,8 +290,7 @@ class TestGenericProvider < Minitest::Test
       mock_element.expect(:size, SizeStruct.new(100, 200))
     end
 
-    @mock_webdriver.expect(:find_element, mock_element,
-                           [Appium::Core::Base::SearchContext::FINDERS[:accessibility_id], 'some_id'])
+    @mock_webdriver.expect(:find_element, mock_element, [:accessibility_id, 'some_id'])
 
     elements_array = []
     ids = ['some_id']
