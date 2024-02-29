@@ -28,11 +28,39 @@ class TestMetadata < Minitest::Test
     ENV['PERCY_LOGLEVEL'] = 'debug'
   end
 
-  def test_get_device_info_device_not_present
+  def test_get_device_info_device_not_present_when_log_level_is_debug
+    # redirecting the standard output temporarily and capture the output in a string. 
+    captured_output = StringIO.new
+    $stdout = captured_output
+    ENV['PERCY_LOGLEVEL'] = 'debug'
     device_name = 'Some Phone 123'
-    assert_output(/#{Regexp.escape(device_name.downcase)} does not exist in config\./) do
-      @metadata.get_device_info(device_name)
-    end
+    @metadata.get_device_info(device_name)
+    # Restore standard output
+    $stdout = STDOUT
+
+    # Get the captured output as a string
+    output = captured_output.string
+    regex_pattern = /#{Regexp.escape(device_name.downcase)} does not exist in config\. Making driver call to get the device info\./
+
+    assert_match(regex_pattern, output)
+    ENV['PERCY_LOGLEVEL'] = nil
+  end
+
+  def test_get_device_info_device_not_present_when_log_level_is_info
+    # redirecting the standard output temporarily and capture the output in a string. 
+    captured_output = StringIO.new
+    $stdout = captured_output
+    ENV['PERCY_LOGLEVEL'] = nil
+    device_name = 'Some Phone 123'
+    @metadata.get_device_info(device_name)
+
+    # Restore standard output
+    $stdout = STDOUT
+
+    # Get the captured output as a string
+    output = captured_output.string
+
+    assert_equal(output, '')
   end
 
   def test_metadata_get_orientation
