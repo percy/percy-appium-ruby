@@ -103,7 +103,7 @@ module Percy
       return @device_info unless @device_info.empty?
 
       @device_info = DEVICE_INFO[device_name.downcase] || {}
-      log("#{device_name.downcase} does not exist in config.") if @device_info.empty?
+      log("#{device_name.downcase} does not exist in config. Making driver call to get the device info.", on_debug: true) if @device_info.empty?
       @device_info
     end
   end
