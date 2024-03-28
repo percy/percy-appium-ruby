@@ -105,8 +105,10 @@ class TestCLIWrapper < Minitest::Test
     name = 'some-name'
     debug_url = 'debug-url'
     sync = false
+    test_case = 'test-case-1'
+    th_test_case_execution_id = 'uuid-1231231'
     response = @cli_wrapper.request_body(name, tag, [tile], debug_url, @ignored_elements_data,
-                                         @considered_elements_data, sync)
+                                         @considered_elements_data, sync, test_case, th_test_case_execution_id)
     assert_equal response['name'], name
     assert_equal response['external_debug_url'], debug_url
     assert_equal response['tag'], tag
@@ -114,6 +116,8 @@ class TestCLIWrapper < Minitest::Test
     assert_equal response['ignored_elements_data'], @ignored_elements_data
     assert_equal response['considered_elements_data'], @considered_elements_data
     assert_equal response['sync'], sync
+    assert_equal response['test_case'], test_case
+    assert_equal response['th_test_case_execution_id'], th_test_case_execution_id
   end
 
   def test_request_body_when_optional_values_are_null
@@ -125,13 +129,15 @@ class TestCLIWrapper < Minitest::Test
     considered_elements_data = nil
     sync = nil
     response = @cli_wrapper.send(:request_body, name, tag, [tile], debug_url, ignored_elements_data,
-                                 considered_elements_data, sync)
+                                 considered_elements_data, sync, nil, nil)
     assert_equal response['name'], name
-    assert_equal response['external_debug_url'], debug_url
+    assert_nil response['external_debug_url']
     assert_equal response['tag'], tag
     assert_equal response['tiles'], [tile.to_h]
     assert_nil response['ignored_elements_data']
     assert_nil response['considered_elements_data']
     assert_nil response['sync']
+    assert_nil response['test_case']
+    assert_nil response['th_test_case_execution_id']
   end
 end
