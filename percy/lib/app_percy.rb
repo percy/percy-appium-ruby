@@ -48,6 +48,18 @@ module Percy
               'Argument orientation should be a String and portrait/landscape'
       end
 
+      test_case = kwargs[:test_case]
+      if test_case && !test_case.is_a?(String)
+        raise TypeError,
+              'Argument test_case should be a String'
+      end
+
+      th_test_case_execution_id = kwargs[:th_test_case_execution_id]
+      if th_test_case_execution_id && !th_test_case_execution_id.is_a?(String)
+        raise TypeError,
+              'Argument th_test_case_execution_id should be a String'
+      end
+
       @provider.screenshot(name, **kwargs)
     end
 

@@ -49,8 +49,9 @@ module Percy
     end
 
     def post_screenshots(name, tag, tiles, external_debug_url = nil, ignored_elements_data = nil,
-                        considered_elements_data = nil, sync = nil)
-      body = request_body(name, tag, tiles, external_debug_url, ignored_elements_data, considered_elements_data, sync)
+                        considered_elements_data = nil, sync = nil, test_case = nil, th_test_case_execution_id = nil)
+      body = request_body(name, tag, tiles, external_debug_url, ignored_elements_data,
+        considered_elements_data, sync, test_case, th_test_case_execution_id)
       body['client_info'] = Percy::Environment.get_client_info
       body['environment_info'] = Percy::Environment.get_env_info
 
@@ -124,7 +125,7 @@ module Percy
       data
     end
 
-    def request_body(name, tag, tiles, external_debug_url, ignored_elements_data, considered_elements_data, sync)
+    def request_body(name, tag, tiles, external_debug_url, ignored_elements_data, considered_elements_data, sync, test_case, th_test_case_execution_id)
       tiles = tiles.map(&:to_h)
       {
         'name' => name,
@@ -133,7 +134,9 @@ module Percy
         'ignored_elements_data' => ignored_elements_data,
         'external_debug_url' => external_debug_url,
         'considered_elements_data' => considered_elements_data,
-        'sync' => sync
+        'sync' => sync,
+        "test_case": test_case,
+        "th_test_case_execution_id": th_test_case_execution_id
       }
     end
   end
