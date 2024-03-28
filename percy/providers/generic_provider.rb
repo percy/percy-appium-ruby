@@ -47,8 +47,12 @@ module Percy
       th_test_case_execution_id = kwargs.fetch(:th_test_case_execution_id, nil)
 
       _post_screenshots(name, tag, tiles, get_debug_url, ignore_regions, consider_regions,
+<<<<<<< HEAD
         sync, test_case, th_test_case_execution_id
       )
+=======
+                        sync, test_case, th_test_case_execution_id)
+>>>>>>> d17fa65b4372c5fcc15dcb72c7742d04805ace3d
     end
 
     def _get_tag(**kwargs)
@@ -85,7 +89,8 @@ module Percy
       header_height = 0
       footer_height = 0
       [
-        Percy::Tile.new(status_bar_height, nav_bar_height, header_height, footer_height, filepath: path, fullscreen: fullscreen)
+        Percy::Tile.new(status_bar_height, nav_bar_height, header_height, footer_height, filepath: path,
+                                                                                         fullscreen: fullscreen)
       ]
     end
 
@@ -98,7 +103,17 @@ module Percy
       elements_array
     end
 
-    def _post_screenshots(name, tag, tiles, debug_url, ignored_regions, considered_regions, sync, test_case, th_test_case_execution_id)
+    def _post_screenshots(
+      name,
+      tag,
+      tiles,
+      debug_url,
+      ignored_regions,
+      considered_regions,
+      sync,
+      test_case,
+      th_test_case_execution_id
+    )
       Percy::CLIWrapper.new.post_screenshots(
         name, tag, tiles, debug_url, ignored_regions, considered_regions, sync, test_case, th_test_case_execution_id
       )
