@@ -44,10 +44,11 @@ module Percy
       }
       sync = kwargs.fetch(:sync, nil)
       test_case = kwargs.fetch(:test_case, nil)
+      labels = kwargs.fetch(:labels, nil)
       th_test_case_execution_id = kwargs.fetch(:th_test_case_execution_id, nil)
 
       _post_screenshots(name, tag, tiles, get_debug_url, ignore_regions, consider_regions,
-                        sync, test_case, th_test_case_execution_id)
+                        sync, test_case, labels, th_test_case_execution_id)
     end
 
     def _get_tag(**kwargs)
@@ -107,10 +108,11 @@ module Percy
       considered_regions,
       sync,
       test_case,
+      labels,
       th_test_case_execution_id
     )
       Percy::CLIWrapper.new.post_screenshots(
-        name, tag, tiles, debug_url, ignored_regions, considered_regions, sync, test_case, th_test_case_execution_id
+        name, tag, tiles, debug_url, ignored_regions, considered_regions, sync, test_case, labels, th_test_case_execution_id
       )
     end
 

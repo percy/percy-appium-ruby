@@ -54,6 +54,12 @@ module Percy
               'Argument test_case should be a String'
       end
 
+      labels = kwargs[:labels]
+      if labels && !labels.is_a?(String)
+        raise TypeError,
+              'Argument labels should be a String'
+      end
+
       th_test_case_execution_id = kwargs[:th_test_case_execution_id]
       if th_test_case_execution_id && !th_test_case_execution_id.is_a?(String)
         raise TypeError,
