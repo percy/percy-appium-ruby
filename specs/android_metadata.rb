@@ -29,7 +29,27 @@ class TestAndroidMetadata < Minitest::Test
     @mock_webdriver.expect(:capabilities, android_capabilities.merge('viewportRect' => viewport))
 
     assert(viewport, @android_metadata.viewport)
+    @mock_webdriver.verify
+  end
 
+  def test_device_screen_size_when_device_screen_size_is_nil
+    # Mock capabilities to return a hash without 'deviceScreenSize'
+    android_capabilities = get_android_capabilities
+    android_capabilities.delete('deviceScreenSize')
+    @mock_webdriver.expect(:capabilities, android_capabilities)
+
+    # Mock driver.window_size to return a double with width and height
+    mock_window_size = Minitest::Mock.new
+    mock_window_size.expect(:width, 1080)
+    mock_window_size.expect(:height, 1920)
+    @mock_webdriver.expect(:window_size, mock_window_size)
+
+    # Call the method and assert the result
+    result = @android_metadata.device_screen_size
+    assert_equal({ width: 1080, height: 1920 }, result)
+
+    # Verify mocks
+    mock_window_size.verify
     @mock_webdriver.verify
   end
 
