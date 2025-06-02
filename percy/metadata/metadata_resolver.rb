@@ -9,7 +9,7 @@ module Percy
     def self.resolve(driver)
       capabilities = driver.capabilities
       capabilities = capabilities.as_json unless capabilities.is_a?(Hash)
-      platform_name = capabilities.fetch('platformName', '').downcase
+      platform_name = (capabilities.fetch('platformName', nil) || capabilities.fetch('platform_name', '')).downcase
       case platform_name
       when 'android'
         Percy::AndroidMetadata.new(driver)
