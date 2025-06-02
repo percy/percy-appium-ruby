@@ -20,6 +20,15 @@ class MetadataResolverTestCase < Minitest::Test
     assert_instance_of(Percy::AndroidMetadata, resolved_metadata)
     @mock_webdriver.verify
   end
+  
+  def test_android_resolved_with_PLATFORM_NAME
+    @mock_webdriver.expect(:capabilities, { 'PLATFORM_NAME' => 'Android' })
+    @mock_webdriver.expect(:capabilities, { 'PLATFORM_NAME' => 'Android' })
+    resolved_metadata = Percy::MetadataResolver.resolve(@mock_webdriver)
+
+    assert_instance_of(Percy::AndroidMetadata, resolved_metadata)
+    @mock_webdriver.verify
+  end
 
   def test_android_resolved_with_platform_name
     @mock_webdriver.expect(:capabilities, { 'platform_name' => 'Android' })
