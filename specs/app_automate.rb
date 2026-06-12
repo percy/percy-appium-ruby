@@ -67,9 +67,9 @@ class TestAppAutomate < Minitest::Test
   end
 
   def test_execute_percy_screenshot_end
-    @app_automate.stub(:execute_percy_screenshot_begin, 'deviceName' => 'abc', 'osVersion' => '123') do
+    @app_automate.stub(:execute_percy_screenshot_begin, { 'deviceName' => 'abc', 'osVersion' => '123' }) do
       @app_automate.stub(:execute_percy_screenshot_end, nil) do
-        @app_automate.stub(:screenshot, 'link' => 'https://link') do
+        @app_automate.stub(:screenshot, { 'link' => 'https://link' }) do
           @app_automate.screenshot('name')
         end
       end
