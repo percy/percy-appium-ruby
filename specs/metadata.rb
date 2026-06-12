@@ -108,6 +108,16 @@ class TestMetadata < Minitest::Test
     assert_equal('10', os_ver)
   end
 
+  def test_metadata_os_version_returns_empty_string_on_error
+    # os_version that does not respond to #to_f (a Hash) makes the
+    # `os_version.to_f.to_i.to_s` conversion raise, exercising the rescue path.
+    capabilities = { 'os_version' => {} }
+    @mock_webdriver.expect(:capabilities, capabilities)
+    @mock_webdriver.expect(:capabilities, capabilities)
+    @mock_webdriver.expect(:capabilities, capabilities)
+    assert_equal('', @metadata.os_version)
+  end
+
   def test_metadata_value_from_devices_info_for_android
     android_device = 'google pixel 7'
     android_device_info = { '13' => { 'status_bar' => '118', 'nav_bar' => '63' } }

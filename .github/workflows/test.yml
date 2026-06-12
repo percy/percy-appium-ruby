@@ -37,4 +37,7 @@ jobs:
           key: v1/${{ runner.os }}/ruby-${{ matrix.ruby }}/${{ hashFiles('**/Gemfile.lock') }}
           restore-keys: v1/${{ runner.os }}/ruby-${{ matrix.ruby }}/
       - run: bundle install
-      - run: for file in specs/*.rb; do echo $file; bundle exec ruby $file; done
+      # Run each spec via the SimpleCov runner so per-process coverage is
+      # recorded and merged, then collate the merged result and enforce the gate.
+      - run: for file in specs/*.rb; do echo "$file"; bundle exec ruby specs/support/run_spec.rb "$file"; done
+      - run: bundle exec ruby specs/support/coverage_check.rb

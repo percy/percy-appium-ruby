@@ -416,4 +416,87 @@ class TestPercyScreenshot < Minitest::Test
     mock_healthcheck(type: 'automate')
     assert_raises(Exception) { percy_screenshot(@mock_webdriver) }
   end
+
+  def test_swallows_screenshot_error_when_ignore_errors_true
+    mock_healthcheck
+    # /percy/events is hit by post_failed_event in the rescue path.
+    stub_request(:post, 'http://localhost:5338/percy/events')
+      .to_return(status: 200, body: '{"success": true}')
+
+    # Force the AppPercy (non-automate) provider so the rescue path in
+    # percy-appium-app.rb is exercised. session_type is memoized across tests.
+    Percy::Environment.session_type = nil
+
+    # Android caps have percy:options.ignoreErrors => true, so the error is
+    # swallowed and percy_screenshot returns nil. A non-String name makes
+    # AppPercy#screenshot raise a TypeError after construction succeeds.
+    driver = build_app_driver(get_android_capabilities)
+
+    result = nil
+    assert_output(/Could not take screenshot/) do
+      result = percy_screenshot(driver, 12_345)
+    end
+    assert_nil result
+    assert(@requests.any? { |r| r.uri.path == '/percy/events' })
+  end
+
+  def test_reraises_screenshot_error_when_ignore_errors_false
+    mock_healthcheck
+    stub_request(:post, 'http://localhost:5338/percy/events')
+      .to_return(status: 200, body: '{"success": true}')
+
+    Percy::Environment.session_type = nil
+
+    # Build caps whose percy:options.ignoreErrors is false so the rescue path
+    # re-raises after posting the failed event.
+    caps = get_android_capabilities.dup
+    caps['percy:options'] = { 'enabled' => true, 'ignoreErrors' => false }
+    caps['percyOptions'] = { 'enabled' => true, 'ignoreErrors' => false }
+    driver = build_app_driver(caps)
+
+    assert_output(/Could not take screenshot/) do
+      assert_raises(TypeError) { percy_screenshot(driver, 12_345) }
+    end
+    assert(@requests.any? { |r| r.uri.path == '/percy/events' })
+  end
+
+  private
+
+  # Builds a Minitest::Mock driver that survives AppPercy construction
+  # (is_a? Appium driver, capabilities, remote_url) for the rescue-path tests.
+  def build_app_driver(caps)
+    driver = Minitest::Mock.new
+    bridge = Minitest::Mock.new
+    http = Minitest::Mock.new
+    server_url = Minitest::Mock.new
+
+    driver.expect(:is_a?, true, [Appium::Core::Base::Driver])
+    20.times { driver.expect(:capabilities, caps) }
+    3.times do
+      driver.expect(:instance_variable_get, bridge, [:@bridge])
+      http.expect(:instance_variable_get, server_url, [:@server_url])
+      bridge.expect(:instance_variable_get, http, [:@http])
+      server_url.expect(:to_s, 'https://hub-cloud.browserstack.com/wd/hub')
+    end
+    driver
+  end
+end
+
+# Test suite for the `hashed` helper in percy/common/common.rb
+class TestHashedHelper < Minitest::Test
+  # Stand-in object that responds to #as_json (core objects do not in this env).
+  class JsonableDouble
+    def as_json
+      { 'converted' => true }
+    end
+  end
+
+  def test_hashed_returns_hash_unchanged
+    input = { 'a' => 1 }
+    assert_same(input, hashed(input))
+  end
+
+  def test_hashed_converts_non_hash_via_as_json
+    assert_equal({ 'converted' => true }, hashed(JsonableDouble.new))
+  end
 end

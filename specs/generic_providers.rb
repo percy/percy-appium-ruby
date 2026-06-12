@@ -13,6 +13,13 @@ class TestGenericProvider < Minitest::Test
   include Appium
   COMPARISON_RESPONSE = { 'comparison' => { 'id' => 123, 'url' => 'https://percy-build-url' } }.freeze
 
+  # Some tests below permanently redefine Percy::Metadata#session_id and
+  # Percy::AndroidMetadata#get_system_bars via class_eval to route them at fixed-count
+  # mocks. Snapshot the pristine implementations once so teardown can restore them and the
+  # suite stays order-independent (the original suite is flaky on certain seeds otherwise).
+  PRISTINE_SESSION_ID = Percy::Metadata.instance_method(:session_id)
+  PRISTINE_GET_SYSTEM_BARS = Percy::AndroidMetadata.instance_method(:get_system_bars)
+
   def setup
     @existing_dir = 'existing-dir'
     teardown
@@ -36,6 +43,20 @@ class TestGenericProvider < Minitest::Test
   def teardown
     if Dir.exist?(@existing_dir)
       FileUtils.remove_dir(@existing_dir, force: true)
+    end
+    restore_pristine_metadata_methods
+  end
+
+  # Undo the class_eval monkey-patching done by tests like test_post_screenshots and
+  # test_non_app_automate so subsequent tests see the real implementations.
+  def restore_pristine_metadata_methods
+    pristine_session_id = PRISTINE_SESSION_ID
+    pristine_get_system_bars = PRISTINE_GET_SYSTEM_BARS
+    Percy::Metadata.class_eval do
+      define_method(:session_id) { |*args, &blk| pristine_session_id.bind(self).call(*args, &blk) }
+    end
+    Percy::AndroidMetadata.class_eval do
+      define_method(:get_system_bars) { |*args, &blk| pristine_get_system_bars.bind(self).call(*args, &blk) }
     end
   end
 
@@ -131,6 +152,30 @@ class TestGenericProvider < Minitest::Test
     assert_includes dict_tile, 'fullscreen'
     assert_equal dict_tile['fullscreen'], false
     File.delete(tile.filepath)
+  end
+
+  # Covers generic_provider.rb line 75: requesting a fullpage screenshot on the generic
+  # provider logs the "only supported on App Automate" fallback message and still produces
+  # a single page tile.
+  def test_get_tiles_fullpage_logs_fallback
+    status_bar_height = 11
+    nav_bar_height = 22
+    logged = []
+    @generic_provider.stub(:log, ->(message, **_kwargs) { logged << message }) do
+      tile = @generic_provider._get_tiles(
+        fullpage: true,
+        status_bar_height: status_bar_height,
+        nav_bar_height: nav_bar_height
+      )[0]
+      dict_tile = tile.to_h
+      assert_includes dict_tile, 'filepath'
+      assert(File.exist?(dict_tile['filepath']))
+      assert_equal status_bar_height, dict_tile['status_bar_height']
+      assert_equal nav_bar_height, dict_tile['nav_bar_height']
+      File.delete(tile.filepath)
+    end
+    assert_includes logged,
+                    'Full page screenshot is only supported on App Automate. Falling back to single page screenshot.'
   end
 
   def test_get_tiles_kwargs

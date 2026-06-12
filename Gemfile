@@ -11,3 +11,4 @@ gem 'tempfile'
 gem 'webmock', '~> 3.18', '>= 3.18.1'
 gem 'webrick', '~> 1.3', '>= 1.3.1'
 gem 'rake', '~> 13.0'
+gem 'simplecov', require: false

@@ -136,6 +136,33 @@ class TestAppPercy < Minitest::Test
     end
   end
 
+  def test_throws_error_when_string_arg_type_mismatch
+    # Three constructions, each followed by a screenshot call with a
+    # non-String value for test_case / labels / th_test_case_execution_id.
+    3.times do
+      @mock_android_webdriver.expect(:is_a?, true, [Appium::Core::Base::Driver])
+    end
+    20.times do
+      @mock_android_webdriver.expect(:capabilities, get_android_capabilities)
+    end
+    3.times do
+      @mock_android_webdriver.expect(:instance_variable_get, @bridge, [:@bridge])
+      @http.expect(:instance_variable_get, @server_url, [:@server_url])
+      @bridge.expect(:instance_variable_get, @http, [:@http])
+      @server_url.expect(:to_s, 'https://hub-cloud.browserstack.com/wd/hub')
+    end
+
+    assert_raises(TypeError) do
+      Percy::AppPercy.new(@mock_android_webdriver).screenshot('screenshot 1', test_case: 123)
+    end
+    assert_raises(TypeError) do
+      Percy::AppPercy.new(@mock_android_webdriver).screenshot('screenshot 1', labels: 123)
+    end
+    assert_raises(TypeError) do
+      Percy::AppPercy.new(@mock_android_webdriver).screenshot('screenshot 1', th_test_case_execution_id: 123)
+    end
+  end
+
   private
 
   def disable_percy_options(mock_webdriver, num = 1)

@@ -17,10 +17,10 @@ module Percy
       caps = caps.as_json unless caps.is_a?(Hash)
       if caps['deviceScreenSize'].nil?
         size = driver.window_size
-        { width: size.width.to_i, height: size.height.to_i }
+        { 'width' => size.width.to_i, 'height' => size.height.to_i }
       else
         width, height = caps['deviceScreenSize'].split('x')
-        { width: width.to_i, height: height.to_i }
+        { 'width' => width.to_i, 'height' => height.to_i }
       end
     end
 

@@ -69,6 +69,25 @@ class TestIOSMetadata < Minitest::Test
     assert_equal({ 'height' => 40 }, status_bar)
   end
 
+  def test_status_bar_from_viewport_top
+    # Seed a viewport with a non-zero `top` so status_bar uses the viewport
+    # height (view_port['top']) instead of the static config scale_factor path.
+    Percy::Cache.force_cleanup_cache
+    session_id = 'session_id_viewport_top'
+    Percy::Cache.set_cache(session_id, Percy::Cache::VIEWPORT, { 'top' => 30, 'height' => 200, 'width' => 100 })
+
+    # status_bar -> viewport reads the seeded cache (1 session_id call); since
+    # top != 0 it returns view_port['top'] directly.
+    @mock_webdriver.expect(:session_id, session_id)
+
+    status_bar = @ios_metadata.status_bar
+    assert_equal({ 'height' => 30 }, status_bar)
+  end
+
+  def test_navigation_bar
+    assert_equal({ 'height' => 0 }, @ios_metadata.navigation_bar)
+  end
+
   def test_scale_factor_present_in_devices_json
     @mock_webdriver.expect(:capabilities, { 'deviceName' => 'iPhone 6' })
     assert_equal(2, @ios_metadata.scale_factor)

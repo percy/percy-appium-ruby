@@ -46,7 +46,7 @@ class TestAndroidMetadata < Minitest::Test
 
     # Call the method and assert the result
     result = @android_metadata.device_screen_size
-    assert_equal({ width: 1080, height: 1920 }, result)
+    assert_equal({ 'width' => 1080, 'height' => 1920 }, result)
 
     # Verify mocks
     mock_window_size.verify
