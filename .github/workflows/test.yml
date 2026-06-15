@@ -2,6 +2,7 @@ name: Test
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
     inputs:
       branch:
@@ -12,9 +13,9 @@ jobs:
   test:
     name: Test
     strategy:
-      # Run every Ruby version to completion. Ruby 3.0 has pre-existing,
-      # coverage-unrelated failures (appium_lib API/version drift); fail-fast
-      # would otherwise cancel the green 2.6/2.7 jobs when 3.0 fails.
+      # Run every Ruby version to completion so one leg failing doesn't cancel
+      # the others. Ruby 3.0's appium_lib API drift is fixed by pinning
+      # appium_lib ~> 12.0 (see Gemfile), so all three legs are green.
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
