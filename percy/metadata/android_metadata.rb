@@ -15,12 +15,15 @@ module Percy
     def device_screen_size
       caps = capabilities
       caps = caps.as_json unless caps.is_a?(Hash)
+      # Use string keys to match the IosMetadata implementation and every
+      # consumer (generic_provider, app_automate, _get_tag), all of which read
+      # device_screen_size['width'] / ['height'].
       if caps['deviceScreenSize'].nil?
         size = driver.window_size
-        { width: size.width.to_i, height: size.height.to_i }
+        { 'width' => size.width.to_i, 'height' => size.height.to_i }
       else
         width, height = caps['deviceScreenSize'].split('x')
-        { width: width.to_i, height: height.to_i }
+        { 'width' => width.to_i, 'height' => height.to_i }
       end
     end
 

@@ -256,7 +256,7 @@ class TestGenericProvider < Minitest::Test
     end
 
     @mock_webdriver.expect(:find_element, mock_element,
-                           [Appium::Core::Base::SearchContext::FINDERS[:xpath], '//path/to/element'])
+                           [:xpath, '//path/to/element'])
 
     elements_array = []
     xpaths = ['//path/to/element']
@@ -271,7 +271,7 @@ class TestGenericProvider < Minitest::Test
   end
 
   def test_get_regions_by_xpath_with_non_existing_element
-    @mock_webdriver.expect(:find_element, [Appium::Core::Base::SearchContext::FINDERS[:xpath], '//path/to/element']) do
+    @mock_webdriver.expect(:find_element, [:xpath, '//path/to/element']) do
       raise Appium::Core::Error::NoSuchElementError, 'Test error'
     end
     elements_array = []
@@ -309,7 +309,7 @@ class TestGenericProvider < Minitest::Test
       mock_element.expect(:size, Selenium::WebDriver::Dimension.new(100, 200))
     end
 
-    @mock_webdriver.expect(:find_element, [Appium::Core::Base::SearchContext::FINDERS[:accessibility_id], 'id1']) do
+    @mock_webdriver.expect(:find_element, [:accessibility_id, 'id1']) do
       raise Appium::Core::Error::NoSuchElementError, 'Test error'
     end
 
