@@ -137,7 +137,10 @@ module Percy
 
     def get_regions_by_xpath(elements_array, xpaths)
       xpaths.each do |xpath|
-        element = driver.find_element(Appium::Core::Base::SearchContext::FINDERS[:xpath], xpath)
+        # Pass the :xpath finder symbol directly. appium_lib_core 12.x removed
+        # Appium::Core::Base::SearchContext::FINDERS; the symbol form works
+        # across all supported appium_lib versions.
+        element = driver.find_element(:xpath, xpath)
         selector = "xpath: #{xpath}"
         if element
           region = get_region_object(selector, element)

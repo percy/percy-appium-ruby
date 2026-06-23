@@ -46,10 +46,18 @@ class TestAndroidMetadata < Minitest::Test
 
     # Call the method and assert the result
     result = @android_metadata.device_screen_size
-    assert_equal({ width: 1080, height: 1920 }, result)
+    assert_equal({ 'width' => 1080, 'height' => 1920 }, result)
 
     # Verify mocks
     mock_window_size.verify
+    @mock_webdriver.verify
+  end
+
+  def test_device_screen_size_when_device_screen_size_is_present
+    # 'deviceScreenSize' => '1080x2280' from get_android_capabilities; parsed into string-keyed hash
+    @mock_webdriver.expect(:capabilities, get_android_capabilities)
+    result = @android_metadata.device_screen_size
+    assert_equal({ 'width' => 1080, 'height' => 2280 }, result)
     @mock_webdriver.verify
   end
 
