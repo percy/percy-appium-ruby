@@ -2,6 +2,7 @@ name: Test
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
     inputs:
       branch:
@@ -12,6 +13,10 @@ jobs:
   test:
     name: Test
     strategy:
+      # Run every Ruby version to completion so one leg failing doesn't cancel
+      # the others. Ruby 3.0's appium_lib API drift is fixed by pinning
+      # appium_lib ~> 12.0 (see Gemfile), so all three legs are green.
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         ruby: ['2.6', '2.7', '3.0']
@@ -37,4 +42,7 @@ jobs:
           key: v1/${{ runner.os }}/ruby-${{ matrix.ruby }}/${{ hashFiles('**/Gemfile.lock') }}
           restore-keys: v1/${{ runner.os }}/ruby-${{ matrix.ruby }}/
       - run: bundle install
-      - run: for file in specs/*.rb; do echo $file; bundle exec ruby $file; done
+      # Run each spec via the SimpleCov runner so per-process coverage is
+      # recorded and merged, then collate the merged result and enforce the gate.
+      - run: for file in specs/*.rb; do echo "$file"; bundle exec ruby specs/support/run_spec.rb "$file"; done
+      - run: bundle exec ruby specs/support/coverage_check.rb

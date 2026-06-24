@@ -5,6 +5,7 @@ require 'minitest/mock'
 require 'appium_lib'
 
 require_relative '../percy/metadata/driver_metadata'
+require_relative '../percy/lib/cache'
 
 # Test suite for the Percy::DriverMetadata class
 class TestDriverMetadata < Minitest::Test
@@ -65,5 +66,26 @@ class TestDriverMetadata < Minitest::Test
     }
 
     assert(session_caps, @metadata.session_capabilities)
+  end
+
+  def test_session_capabilities_caches_desired_capabilities_on_cache_miss
+    # Force a clean cache and use a unique session id so the cache lookup misses
+    # and the desired_capabilities branch (set_cache) is exercised.
+    Percy::Cache.force_cleanup_cache
+    session_id = 'session_id_session_caps_miss'
+    desired_caps = {
+      'platform' => 'chrome_android',
+      'browserVersion' => '115.0.1',
+      'session_name' => 'abc'
+    }
+    # session_id is read by session_capabilities, get_cache and set_cache.
+    3.times { @mock_webdriver.expect(:session_id, session_id) }
+    @mock_webdriver.expect(:desired_capabilities, desired_caps)
+
+    fetched = @metadata.session_capabilities
+    assert_equal(desired_caps, fetched)
+    # Now the value is cached: read straight back without another driver call.
+    @mock_webdriver.expect(:session_id, session_id)
+    assert_equal(desired_caps, @metadata.session_capabilities)
   end
 end

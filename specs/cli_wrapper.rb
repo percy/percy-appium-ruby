@@ -16,6 +16,20 @@ def mock_poa_screenshot(fail: false)
     .to_return(body: "{\"success\": #{fail ? 'false, "error": "test"' : 'true'}}", status: (fail ? 500 : 200))
 end
 
+def mock_healthcheck_with_version(version)
+  stub_request(:get, 'http://localhost:5338/percy/healthcheck')
+    .to_return(
+      body: JSON.dump(success: true, build: { 'id' => '123', 'url' => 'dummy_url' }, type: 'automate'),
+      status: 200,
+      headers: { 'X-Percy-Core-Version' => version }
+    )
+end
+
+def mock_failed_event(fail: false)
+  stub_request(:post, 'http://localhost:5338/percy/events')
+    .to_return(body: "{\"success\": #{fail ? 'false, "error": "test"' : 'true'}}", status: (fail ? 500 : 200))
+end
+
 # Test suite for the Percy::CLIWrapper class
 class TestCLIWrapper < Minitest::Test
   def setup
@@ -142,5 +156,57 @@ class TestCLIWrapper < Minitest::Test
     assert_nil response['test_case']
     assert_nil response['labels']
     assert_nil response['th_test_case_execution_id']
+  end
+
+  # Targets cli_wrapper.rb lines 42-43: CLI minor version below 27 disables the SDK.
+  def test_percy_enabled_with_unsupported_minor_version
+    Percy::CLIWrapper.instance_variable_set(:@percy_enabled, nil)
+    mock_healthcheck_with_version('1.26.0')
+
+    assert_output(/Please upgrade to the latest CLI version/) do
+      assert_equal(false, Percy::CLIWrapper.percy_enabled?)
+    end
+  ensure
+    Percy::CLIWrapper.instance_variable_set(:@percy_enabled, nil)
+  end
+
+  # Targets cli_wrapper.rb lines 74, 79, 80, 89: post_failed_event success path
+  # builds the body, posts to /percy/events and parses the response.
+  def test_post_failed_event_success
+    mock_failed_event
+
+    result = Percy::CLIWrapper.post_failed_event('some error')
+
+    assert_equal({ 'success' => true }, result)
+  end
+
+  # Targets cli_wrapper.rb lines 83-86 (error branch) and 91-92 (rescue -> nil):
+  # a non-200 response raises CLIException internally which is rescued and nil returned.
+  def test_post_failed_event_handles_error_response
+    mock_failed_event(fail: true)
+
+    assert_nil Percy::CLIWrapper.post_failed_event('some error')
+  end
+
+  # Targets cli_wrapper.rb lines 91-92: a network/parse failure is rescued and nil returned.
+  def test_post_failed_event_rescues_exceptions
+    stub_request(:post, 'http://localhost:5338/percy/events').to_raise(StandardError.new('boom'))
+
+    assert_nil Percy::CLIWrapper.post_failed_event('some error')
+  end
+
+  # Targets cli_wrapper.rb lines 121-122: response is a 2xx success but not exactly 200,
+  # so the error message is extracted from the body and raised.
+  def test_post_poa_screenshots_raises_on_non_200_success
+    stub_request(:post, 'http://localhost:5338/percy/automateScreenshot')
+      .to_return(body: '{"success": false, "error": "poa error"}', status: 201)
+
+    error = assert_raises(CLIException) do
+      @cli_wrapper.post_poa_screenshots(
+        'snapshot', 'session-id', 'http://example.com',
+        { 'browser' => 'chrome' }, { 'platform' => 'Windows' }, {}
+      )
+    end
+    assert_equal('poa error', error.message)
   end
 end
