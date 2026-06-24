@@ -13,16 +13,15 @@ module Percy
     end
 
     def device_screen_size
-      caps = capabilities
-      caps = caps.as_json unless caps.is_a?(Hash)
       # Use string keys to match the IosMetadata implementation and every
       # consumer (generic_provider, app_automate, _get_tag), all of which read
       # device_screen_size['width'] / ['height'].
-      if caps['deviceScreenSize'].nil?
+      device_screen_size_cap = get_capability_value('deviceScreenSize')
+      if device_screen_size_cap.nil?
         size = driver.window_size
         { 'width' => size.width.to_i, 'height' => size.height.to_i }
       else
-        width, height = caps['deviceScreenSize'].split('x')
+        width, height = device_screen_size_cap.split('x')
         { 'width' => width.to_i, 'height' => height.to_i }
       end
     end
@@ -76,11 +75,11 @@ module Percy
 
     def _device_name
       if @device_name.nil?
-        desired_caps = capabilities.to_json['desired'] || {}
-        device_name = desired_caps['deviceName']
+        desired_caps = get_capability_value('desired') || {}
+        device_name = desired_caps['deviceName'] || desired_caps['device_name']
         device = desired_caps['device']
         device_name ||= device
-        device_model = capabilities.to_json['deviceModel']
+        device_model = get_capability_value('deviceModel')
         @device_name = device_name || device_model
       end
       @device_name

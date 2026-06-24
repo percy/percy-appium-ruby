@@ -25,19 +25,47 @@ module Percy
       caps
     end
 
+    # Normalizes a capability key so lookups are resilient to the differences
+    # across appium_lib_core versions and protocols: camelCase ("platformName"),
+    # snake_case ("platform_name", as returned by appium_lib_core 13+),
+    # SCREAMING ("PLATFORM_NAME") and the W3C vendor prefix ("appium:platformName").
+    def self.normalize_capability_key(key)
+      key.to_s.downcase.gsub(/[_:]/, '').sub(/\Aappium/, '')
+    end
+
+    # Builds a {normalized_key => value} view of the driver's capabilities,
+    # coercing the appium_lib_core Capabilities object into a plain Hash first.
+    def self.normalized_capabilities(driver)
+      caps = driver.capabilities
+      caps = caps.as_json if caps.respond_to?(:as_json) && !caps.is_a?(Hash)
+      caps = caps.to_h if caps.respond_to?(:to_h) && !caps.is_a?(Hash)
+      normalized = {}
+      # First key wins, so a camelCase key (e.g. "platformName") takes
+      # precedence over a snake_case duplicate ("platform_name") when both
+      # are present, matching the previous MetadataResolver semantics.
+      (caps || {}).each do |k, v|
+        nk = normalize_capability_key(k)
+        normalized[nk] = v unless normalized.key?(nk)
+      end
+      normalized
+    end
+
+    # Reads capabilities fresh on every call (no memoization) so callers always
+    # observe the driver's current capabilities, matching the prior behaviour.
+    def get_capability_value(name)
+      self.class.normalized_capabilities(driver)[self.class.normalize_capability_key(name)]
+    end
+
     def session_id
       driver.session_id
     end
 
     def os_name
-      capabilities['platformName']
+      get_capability_value('platformName')
     end
 
     def os_version
-      caps = capabilities
-      caps = caps.as_json unless caps.is_a?(Hash)
-
-      os_version = caps['os_version'] || caps['platformVersion'] || ''
+      os_version = get_capability_value('os_version') || get_capability_value('platformVersion') || ''
       os_version = @os_version || os_version
       begin
         os_version.to_f.to_i.to_s
@@ -51,7 +79,7 @@ module Percy
     end
 
     def get_orientation(**kwargs)
-      orientation = kwargs[:orientation] || capabilities['orientation'] || 'PORTRAIT'
+      orientation = kwargs[:orientation] || get_capability_value('orientation') || 'PORTRAIT'
       orientation = orientation.downcase
       orientation = orientation == 'auto' ? _orientation : orientation
       orientation.upcase
