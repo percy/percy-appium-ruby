@@ -105,4 +105,15 @@ class TestIOSMetadata < Minitest::Test
 
     assert_equal(2, @ios_metadata.scale_factor)
   end
+
+  def test_device_name_with_camel_case_caps
+    @mock_webdriver.expect(:capabilities, { 'deviceName' => 'iPhone 14' })
+    assert_equal('iPhone 14', @ios_metadata.device_name)
+  end
+
+  # Regression: appium_lib_core 13.x returns capabilities with snake_case keys.
+  def test_device_name_with_snake_case_caps
+    @mock_webdriver.expect(:capabilities, { 'device_name' => 'iPhone 14' })
+    assert_equal('iPhone 14', @ios_metadata.device_name)
+  end
 end

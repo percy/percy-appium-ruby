@@ -29,8 +29,23 @@ module Percy
     # across appium_lib_core versions and protocols: camelCase ("platformName"),
     # snake_case ("platform_name", as returned by appium_lib_core 13+),
     # SCREAMING ("PLATFORM_NAME") and the W3C vendor prefix ("appium:platformName").
+    # Note: all colons are stripped, not just the vendor-prefix one. This is safe
+    # for every known Appium capability (e.g. "bstack:options" -> "bstackoptions").
     def self.normalize_capability_key(key)
       key.to_s.downcase.gsub(/[_:]/, '').sub(/\Aappium/, '')
+    end
+
+    # Builds a {normalized_key => value} view of a capabilities hash. First key
+    # wins, so a camelCase key (e.g. "platformName") takes precedence over a
+    # snake_case duplicate ("platform_name") when both are present, matching the
+    # previous MetadataResolver semantics.
+    def self.normalize_hash(hash)
+      normalized = {}
+      (hash || {}).each do |k, v|
+        nk = normalize_capability_key(k)
+        normalized[nk] = v unless normalized.key?(nk)
+      end
+      normalized
     end
 
     # Builds a {normalized_key => value} view of the driver's capabilities,
@@ -39,15 +54,7 @@ module Percy
       caps = driver.capabilities
       caps = caps.as_json if caps.respond_to?(:as_json) && !caps.is_a?(Hash)
       caps = caps.to_h if caps.respond_to?(:to_h) && !caps.is_a?(Hash)
-      normalized = {}
-      # First key wins, so a camelCase key (e.g. "platformName") takes
-      # precedence over a snake_case duplicate ("platform_name") when both
-      # are present, matching the previous MetadataResolver semantics.
-      (caps || {}).each do |k, v|
-        nk = normalize_capability_key(k)
-        normalized[nk] = v unless normalized.key?(nk)
-      end
-      normalized
+      normalize_hash(caps)
     end
 
     # Reads capabilities fresh on every call (no memoization) so callers always

@@ -9,6 +9,11 @@ module Percy
     def initialize(driver)
       super(driver)
       @_bars = nil
+      # Intentionally left as the original lookup: this path already degrades to
+      # driver.get_system_bars consistently across all appium_lib_core versions
+      # (the rect read yields a non-Hash, so the rect arithmetic in
+      # get_system_bars rescues to nil and falls back), so it is out of scope for
+      # the snake_case capability fix.
       @_viewport_rect = capabilities.to_json['viewportRect']
     end
 
@@ -75,8 +80,10 @@ module Percy
 
     def _device_name
       if @device_name.nil?
-        desired_caps = get_capability_value('desired') || {}
-        device_name = desired_caps['deviceName'] || desired_caps['device_name']
+        # Normalize the nested desired-caps hash too, so its keys are matched
+        # regardless of casing (camelCase or appium_lib_core 13+ snake_case).
+        desired_caps = Percy::Metadata.normalize_hash(get_capability_value('desired'))
+        device_name = desired_caps['devicename']
         device = desired_caps['device']
         device_name ||= device
         device_model = get_capability_value('deviceModel')

@@ -102,4 +102,28 @@ class TestAndroidMetadata < Minitest::Test
   def test_scale_factor
     assert_equal(1, @android_metadata.scale_factor)
   end
+
+  # Regression: appium_lib_core 13.x returns capabilities with snake_case keys
+  # (e.g. "device_screen_size" instead of "deviceScreenSize").
+  def test_device_screen_size_with_snake_case_caps
+    android_capabilities = get_android_capabilities
+    android_capabilities.delete('deviceScreenSize')
+    android_capabilities['device_screen_size'] = '1080x2280'
+    @mock_webdriver.expect(:capabilities, android_capabilities)
+
+    result = @android_metadata.device_screen_size
+    assert_equal({ 'width' => 1080, 'height' => 2280 }, result)
+    @mock_webdriver.verify
+  end
+
+  # Regression: the nested desired-caps hash is also normalized, so a
+  # snake_case "device_name" inside "desired" still resolves the device.
+  def test_device_name_with_snake_case_desired_caps
+    android_capabilities = get_android_capabilities
+    android_capabilities['desired'] = { 'device_name' => 'google pixel 4' }
+    @mock_webdriver.expect(:capabilities, android_capabilities)
+    @mock_webdriver.expect(:capabilities, android_capabilities)
+
+    assert_equal('google pixel 4', @android_metadata._device_name)
+  end
 end

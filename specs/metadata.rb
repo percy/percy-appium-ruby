@@ -137,4 +137,26 @@ class TestMetadata < Minitest::Test
       @metadata.value_from_devices_info('scale_factor', ios_device)
     )
   end
+
+  def test_normalize_capability_key
+    # camelCase, snake_case, SCREAMING and the appium: vendor prefix all
+    # collapse to the same normalized key.
+    %w[platformName platform_name PLATFORM_NAME appium:platformName].each do |key|
+      assert_equal('platformname', Percy::Metadata.normalize_capability_key(key))
+    end
+    assert_equal('platformname', Percy::Metadata.normalize_capability_key(:platformName))
+  end
+
+  # Regression: appium_lib_core 13.x returns capabilities with snake_case keys.
+  def test_metadata_os_name_with_snake_case_caps
+    @mock_webdriver.expect(:capabilities, { 'platform_name' => 'Android' })
+    assert_equal('Android', @metadata.os_name)
+  end
+
+  def test_metadata_os_version_with_snake_case_platform_version
+    capabilities = { 'platform_version' => '14' }
+    @mock_webdriver.expect(:capabilities, capabilities)
+    @mock_webdriver.expect(:capabilities, capabilities)
+    assert_equal('14', @metadata.os_version)
+  end
 end
