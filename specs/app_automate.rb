@@ -67,6 +67,9 @@ class TestAppAutomate < Minitest::Test
   end
 
   def test_execute_percy_screenshot_end
+    # Wrap the stub return hashes in explicit braces. Under Ruby 3 keyword
+    # argument separation, a bare trailing hash is otherwise parsed as keyword
+    # args to Minitest's stub, raising ArgumentError.
     @app_automate.stub(:execute_percy_screenshot_begin, { 'deviceName' => 'abc', 'osVersion' => '123' }) do
       @app_automate.stub(:execute_percy_screenshot_end, nil) do
         @app_automate.stub(:screenshot, { 'link' => 'https://link' }) do

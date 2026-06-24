@@ -53,6 +53,14 @@ class TestAndroidMetadata < Minitest::Test
     @mock_webdriver.verify
   end
 
+  def test_device_screen_size_when_device_screen_size_is_present
+    # 'deviceScreenSize' => '1080x2280' from get_android_capabilities; parsed into string-keyed hash
+    @mock_webdriver.expect(:capabilities, get_android_capabilities)
+    result = @android_metadata.device_screen_size
+    assert_equal({ 'width' => 1080, 'height' => 2280 }, result)
+    @mock_webdriver.verify
+  end
+
   def test_get_system_bars
     system_bars = {
       'statusBar' => { 'height' => 83 },

@@ -383,7 +383,7 @@ class TestPercyScreenshot < Minitest::Test
                     })
     end
     driver.expect(:find_element, mock_element,
-                  [Appium::Core::Base::SearchContext::FINDERS[:xpath], '//path/to/element'])
+                  [:xpath, '//path/to/element'])
 
     percy_screenshot(driver, 'screenshot 1', ignore_regions_xpaths: xpaths)
 
