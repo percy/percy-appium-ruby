@@ -67,11 +67,7 @@ module Percy
     end
 
     def device_name
-      if @device_name.nil?
-        caps = capabilities
-        caps = caps.as_json unless caps.is_a?(Hash)
-        @device_name = caps['deviceName']
-      end
+      @device_name = get_capability_value('deviceName') if @device_name.nil?
       @device_name
     end
 

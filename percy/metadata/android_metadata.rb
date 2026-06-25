@@ -9,20 +9,24 @@ module Percy
     def initialize(driver)
       super(driver)
       @_bars = nil
+      # Intentionally left as the original lookup: this path already degrades to
+      # driver.get_system_bars consistently across all appium_lib_core versions
+      # (the rect read yields a non-Hash, so the rect arithmetic in
+      # get_system_bars rescues to nil and falls back), so it is out of scope for
+      # the snake_case capability fix.
       @_viewport_rect = capabilities.to_json['viewportRect']
     end
 
     def device_screen_size
-      caps = capabilities
-      caps = caps.as_json unless caps.is_a?(Hash)
       # Use string keys to match the IosMetadata implementation and every
       # consumer (generic_provider, app_automate, _get_tag), all of which read
       # device_screen_size['width'] / ['height'].
-      if caps['deviceScreenSize'].nil?
+      device_screen_size_cap = get_capability_value('deviceScreenSize')
+      if device_screen_size_cap.nil?
         size = driver.window_size
         { 'width' => size.width.to_i, 'height' => size.height.to_i }
       else
-        width, height = caps['deviceScreenSize'].split('x')
+        width, height = device_screen_size_cap.split('x')
         { 'width' => width.to_i, 'height' => height.to_i }
       end
     end
@@ -76,11 +80,13 @@ module Percy
 
     def _device_name
       if @device_name.nil?
-        desired_caps = capabilities.to_json['desired'] || {}
-        device_name = desired_caps['deviceName']
+        # Normalize the nested desired-caps hash too, so its keys are matched
+        # regardless of casing (camelCase or appium_lib_core 13+ snake_case).
+        desired_caps = Percy::Metadata.normalize_hash(get_capability_value('desired'))
+        device_name = desired_caps['devicename']
         device = desired_caps['device']
         device_name ||= device
-        device_model = capabilities.to_json['deviceModel']
+        device_model = get_capability_value('deviceModel')
         @device_name = device_name || device_model
       end
       @device_name
