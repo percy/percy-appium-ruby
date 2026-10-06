@@ -39,6 +39,38 @@ class TestDriverMetadata < Minitest::Test
     assert(url, @metadata.command_executor_url)
   end
 
+  # appium_lib_core 11+ leaves the HTTP client's @server_url unset and keeps the
+  # hub URL in client_config.server_url (a URI with a trailing slash).
+  class ClientConfigHttp
+    attr_reader :client_config
+
+    def initialize(client_config)
+      @client_config = client_config
+    end
+  end
+
+  def driver_with_http(http)
+    bridge = Object.new
+    bridge.instance_variable_set(:@http, http)
+    driver = Object.new
+    driver.instance_variable_set(:@bridge, bridge)
+    driver.define_singleton_method(:session_id) { "session_#{object_id}" }
+    driver
+  end
+
+  def test_command_executor_url_reads_client_config_when_server_url_unset
+    client_config = Struct.new(:server_url).new(URI('https://hub-cloud.browserstack.com/wd/hub/'))
+    driver = driver_with_http(ClientConfigHttp.new(client_config))
+
+    assert_equal('https://hub-cloud.browserstack.com/wd/hub', Percy::DriverMetadata.new(driver).command_executor_url)
+  end
+
+  def test_server_url_is_empty_when_no_known_location_has_it
+    driver = driver_with_http(ClientConfigHttp.new(nil))
+
+    assert_equal('', Percy::DriverMetadata.server_url(driver))
+  end
+
   def test_capabilities
     session_id = 'session_id_123'
     2.times do

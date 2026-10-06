@@ -9,12 +9,11 @@ module Percy
     def initialize(driver)
       super(driver)
       @_bars = nil
-      # Intentionally left as the original lookup: this path already degrades to
-      # driver.get_system_bars consistently across all appium_lib_core versions
-      # (the rect read yields a non-Hash, so the rect arithmetic in
-      # get_system_bars rescues to nil and falls back), so it is out of scope for
-      # the snake_case capability fix.
-      @_viewport_rect = capabilities.to_json['viewportRect']
+      # Read the rect as a Hash. The previous `capabilities.to_json['viewportRect']`
+      # indexed a JSON String, so the rect was never used and every call fell back
+      # to driver.get_system_bars, which appium_lib_core 13+ sends as the
+      # Appium 2-only `mobile: getSystemBars` command.
+      @_viewport_rect = viewport
     end
 
     def device_screen_size
@@ -71,7 +70,8 @@ module Percy
     end
 
     def viewport
-      capabilities.to_json['viewportRect']
+      rect = get_capability_value('viewportRect')
+      rect.is_a?(Hash) ? rect : nil
     end
 
     def scale_factor

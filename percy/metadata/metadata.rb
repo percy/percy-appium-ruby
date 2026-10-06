@@ -3,6 +3,7 @@
 require 'json'
 require 'pathname'
 require_relative '../common/common'
+require_relative 'driver_metadata'
 
 DEVICE_INFO_FILE_PATH = File.join(File.dirname(__FILE__), '..', 'configs', 'devices.json')
 DEVICE_INFO = JSON.parse(File.read(DEVICE_INFO_FILE_PATH))
@@ -82,7 +83,7 @@ module Percy
     end
 
     def remote_url
-      driver.instance_variable_get(:@bridge).instance_variable_get(:@http).instance_variable_get(:@server_url).to_s
+      Percy::DriverMetadata.server_url(driver)
     end
 
     def get_orientation(**kwargs)
