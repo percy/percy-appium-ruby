@@ -21,7 +21,13 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         ruby: ['2.6', '2.7', '3.0']
+        include:
+          - os: ubuntu-latest
+            ruby: '3.3'
+            appium_lib: '~> 16.0'
     runs-on: ${{ matrix.os }}
+    env:
+      APPIUM_LIB_VERSION: ${{ matrix.appium_lib || '~> 12.0' }}
     steps:
       - uses: actions-ecosystem/action-regex-match@v2
         id: regex-match

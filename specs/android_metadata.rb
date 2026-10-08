@@ -28,7 +28,7 @@ class TestAndroidMetadata < Minitest::Test
     android_capabilities = get_android_capabilities
     @mock_webdriver.expect(:capabilities, android_capabilities.merge('viewportRect' => viewport))
 
-    assert(viewport, @android_metadata.viewport)
+    assert_equal(viewport, @android_metadata.viewport)
     @mock_webdriver.verify
   end
 
@@ -61,19 +61,30 @@ class TestAndroidMetadata < Minitest::Test
     @mock_webdriver.verify
   end
 
-  def test_get_system_bars
+  def test_get_system_bars_falls_back_to_driver_without_viewport_rect
     system_bars = {
       'statusBar' => { 'height' => 83 },
       'navigationBar' => { 'height' => 44 }
     }
-    android_capabilities = get_android_capabilities
-    session_id = 'session_id_123'
-    @mock_webdriver.expect(:session_id, session_id)
-    @mock_webdriver.expect(:session_id, session_id)
-    @mock_webdriver.expect(:capabilities, android_capabilities.merge('viewportRect' => nil))
-    @mock_webdriver.expect(:get_system_bars, system_bars)
+    driver = Minitest::Mock.new
+    driver.expect(:capabilities, get_android_capabilities.merge('viewportRect' => nil))
+    metadata = Percy::AndroidMetadata.new(driver)
+    driver.expect(:session_id, 'session_id_no_rect')
+    driver.expect(:session_id, 'session_id_no_rect')
+    driver.expect(:get_system_bars, system_bars)
 
-    assert(system_bars, @android_metadata.get_system_bars)
+    assert_equal(system_bars, metadata.get_system_bars)
+    driver.verify
+  end
+
+  def test_get_system_bars_uses_viewport_rect
+    # viewportRect top=83, height=2153 on a 1080x2280 screen (see get_android_capabilities)
+    @mock_webdriver.expect(:session_id, 'session_id_rect')
+    @mock_webdriver.expect(:capabilities, get_android_capabilities)
+
+    bars = @android_metadata.get_system_bars
+
+    assert_equal({ 'statusBar' => { 'height' => 83 }, 'navigationBar' => { 'height' => 44 } }, bars)
     @mock_webdriver.verify
   end
 
